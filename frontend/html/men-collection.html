@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAZAR - Каталог</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        /* Верхняя панель навигации */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: white;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .brand {
+            font-size: 48px;
+            font-family: 'Didot', serif;
+            letter-spacing: 8px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-buttons a {
+            text-decoration: none;
+            color: black;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-bar input {
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .auth-cart {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .auth-cart button {
+            padding: 10px 20px;
+            background-color: black;
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        /* Фильтр и каталог */
+        .filter-container {
+            margin: 20px;
+        }
+
+        .filter-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-button {
+            background-color: #ddd;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .filter-dropdown {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        .filter-button:hover .filter-dropdown {
+            display: block;
+        }
+
+        .catalog-title {
+            font-size: 36px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .catalog-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .catalog-item {
+            width: 200px;
+            height: 300px;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .catalog-item img {
+            width: 100%;
+            height: auto;
+        }
+
+        .catalog-item h3 {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+        .catalog-item p {
+            font-size: 16px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Навигационная панель -->
+    <div class="navbar">
+        <div class="nav-buttons">
+            <a href="/women-collection.html">Женский</a>
+            <a href="/men-collection.html">Мужской</a>
+            <a href="/teens-collection.html">Тинейджеры</a>
+        </div>
+
+        <div class="brand">BAZAR</div>
+
+        <div class="search-bar">
+            <input type="text" placeholder="Поиск...">
+        </div>
+
+        <div class="auth-cart">
+            <button onclick="window.location.href='/register.html'">Присоединиться к BAZAR</button>
+            <button onclick="window.location.href='/cart.html'">Корзина</button>
+        </div>
+    </div>
+
+    <!-- Фильтр -->
+    <div class="filter-container">
+        <div class="filter-title">Фильтры</div>
+        <div class="filters">
+            <button class="filter-button">Джинсы</button>
+            <button class="filter-button">Футболки</button>
+            <button class="filter-button">Куртки</button>
+            <button class="filter-button">Обувь</button>
+            <button class="filter-button">Толстовки</button>
+            <button class="filter-button">Головные уборы</button>
+        </div>
+    </div>
+
+    <!-- Заголовок каталога -->
+    <div class="catalog-title">Мужская коллекция</div>
+
+    <!-- Товары каталога -->
+    <div class="catalog-items" id="catalog-items"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const token = localStorage.getItem('token');
+
+    // Находим кнопку регистрации
+    const authButton = document.querySelector(".auth-cart button:first-child");
+
+    if (token) {
+        authButton.textContent = "Профиль";
+        authButton.onclick = function () {
+            window.location.href = "/profile.html";
+        };
+    } else {
+        authButton.textContent = "Присоединиться к BAZAR";
+        authButton.onclick = function () {
+            window.location.href = "/register.html";
+        };
+    }
+
+    // Функция загрузки товаров с сервера (GET-запрос)
+    function fetchProducts() {
+        let url = "http://localhost:8080/api/product/all";
+
+        const headers = {
+            "Content-Type": "application/json",
+            ...(token && { "Authorization": `Bearer ${token}` })
+        };
+
+        console.log("Отправляемый запрос:", { url, method: "GET", headers });
+
+        fetch(url, {
+            method: "GET",
+            headers: headers
+        })
+        .then(async response => {
+            console.log("Ответ сервера (статус):", response.status);
+            console.log("Ответ сервера (заголовки):", Object.fromEntries(response.headers.entries()));
+
+            const responseBody = await response.text(); // Получаем полный ответ в виде текста
+            console.log("Ответ сервера (тело):", responseBody);
+
+            if (!response.ok) {
+                throw new Error(`Ошибка HTTP: ${response.status}`);
+            }
+
+            return JSON.parse(responseBody); // Преобразуем в JSON
+        })
+        .then(data => {
+            console.log("Ответ сервера (JSON-данные):", data);
+
+            if (!Array.isArray(data)) {
+                throw new Error("Неверный формат данных: ожидался массив");
+            }
+
+            const catalog = document.getElementById("catalog-items");
+            if (!catalog) {
+                console.error("Элемент с ID 'catalog-items' не найден.");
+                return;
+            }
+
+            catalog.innerHTML = "";
+
+            // Определяем фильтр по текущему пути
+            const currentPage = window.location.pathname;
+            let genderFilter = null;
+
+            if (currentPage.includes("men-collection.html")) {
+                genderFilter = "MALE";
+            } else if (currentPage.includes("women-collection.html")) {
+                genderFilter = "FEMALE";
+            } else if (currentPage.includes("teens-collection.html")) {
+                genderFilter = "TEEN";
+            }
+
+            // Фильтруем товары по полю gender
+            const filteredProducts = genderFilter ? data.filter(product => product.gender === genderFilter) : data;
+
+            console.log("Отфильтрованные товары:", filteredProducts);
+
+            filteredProducts.forEach(product => {
+                const item = document.createElement("div");
+                item.classList.add("catalog-item");
+
+                item.innerHTML = `
+                    <a href="product.html?id=${product.id}" style="text-decoration: none; color: inherit;">
+                        <img src="${product.imageUrl || 'default-image.jpg'}" alt="${product.name || 'Изображение недоступно'}">
+                        <h3>${product.name}</h3>
+                        <p>Цена: ${product.price} KZT</p>
+                    </a>
+                `;
+
+                catalog.appendChild(item);
+            });
+        })
+        .catch(error => {
+            console.error("Ошибка загрузки данных:", error);
+        });
+    }
+
+    fetchProducts();
+});
+
+    </script>
+        
+
+</body>
+</html>
