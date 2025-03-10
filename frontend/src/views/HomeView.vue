@@ -39,41 +39,26 @@
       </div>
     </div>
     <div class="collections">
-        <div class="collections-items">
-      <div class="collections-title">
-        <h2>Коллекция - 1</h2>
-        <h4>Посмотреть все</h4>
+      <div class="collections-items collection-1">
+        <div class="collections-title">
+          <h2>Коллекция - 1</h2>
+          <br>
+          <p>Посмотреть все</p>
+        </div>
       </div>
-      <div class="collections-img">
-        <img src="@/assets/img/banner.jpg" alt="" />
-      </div>
-    </div>
-    <div class="collections-items">
-      <div class="collections-title">
-        <h2>Коллекция - 2</h2>
-        <h4>Посмотреть все</h4>
-      </div>
-      <div class="collections-img">
-        <img src="@/assets/img/banner.jpg" alt="" />
+      <div class="collections-items collection-2">
+        <div class="collections-title">
+          <h2>Коллекция - 2</h2>
+          <p>Посмотреть все</p>
+        </div>
       </div>
     </div>
-
-
-    <div class="promo"></div>
-  </div>
   </div>
 </template>
 
-<script setup>
-
-</script>
+<script setup></script>
 
 <style scoped>
-/* .content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-} */
 
 .banner-new-items {
   position: relative;
@@ -107,7 +92,6 @@
   object-fit: cover; /* Обрезка изображения без искажения */
 }
 
-
 .category-title {
   font-family: 'Martian Mono', monospace;
   text-align: center;
@@ -126,9 +110,10 @@
   max-width: 300px;
 }
 
-.category-items li h3{
-    text-align: center;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+.category-items li h3 {
+  text-align: center;
+  font-family:
+    'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 .category-items img {
@@ -139,39 +124,62 @@
 }
 
 .collections {
-  height: 80vh; /* 80% экрана */
-  overflow-y: auto;
-  scroll-snap-type: y mandatory; /* Прокрутка по секциям */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 .collections-items {
-  height: 80vh; /* Каждая секция занимает 80% экрана */
   position: relative;
-  scroll-snap-align: start; /* Привязка к началу секции */
+  text-align: center;
+  width: 100%;
+  height: 90vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
 }
 
-.collections-img {
-  position: fixed;
+/* Добавлен параллакс */
+.collections-items::before {
+  content: "";
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 80vh;
-  z-index: -1; /* Фиксированное фоновое изображение */
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  z-index: -1;
 }
 
-.collections-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* Заполнение без искажений */
+/* Фоновые изображения */
+.collection-1::before {
+  background-image: url("@/assets/img/banner1.jpg");
+}
+
+.collection-2::before {
+  background-image: url("@/assets/img/banner2.jpg");
 }
 
 .collections-title {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   color: white;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
+.collections-title h2{
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+  font-size: 45px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.collections-title p{
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+  font-size: 20px;
+  cursor: pointer;
+}
 </style>
