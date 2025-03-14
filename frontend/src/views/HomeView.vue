@@ -42,7 +42,7 @@
       <div class="collections-items collection-1">
         <div class="collections-title">
           <h2>Коллекция - 1</h2>
-          <br>
+          <br />
           <p>Посмотреть все</p>
         </div>
       </div>
@@ -59,7 +59,6 @@
 <script setup></script>
 
 <style scoped>
-
 .banner-new-items {
   position: relative;
   text-align: center;
@@ -141,7 +140,7 @@
 
 /* Добавлен параллакс */
 .collections-items::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -155,11 +154,11 @@
 
 /* Фоновые изображения */
 .collection-1::before {
-  background-image: url("@/assets/img/banner1.jpg");
+  background-image: url('@/assets/img/banner1.jpg');
 }
 
 .collection-2::before {
-  background-image: url("@/assets/img/banner2.jpg");
+  background-image: url('@/assets/img/banner2.jpg');
 }
 
 .collections-title {
@@ -170,14 +169,14 @@
   align-items: center;
 }
 
-.collections-title h2{
+.collections-title h2 {
   font-family: 'Comic Sans MS', 'Comic Sans', cursive;
   font-size: 45px;
   margin: 0;
   cursor: pointer;
 }
 
-.collections-title p{
+.collections-title p {
   font-family: 'Comic Sans MS', 'Comic Sans', cursive;
   font-size: 20px;
   cursor: pointer;

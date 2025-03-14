@@ -58,4 +58,12 @@ public class Product {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @Column(name = "collection")
+    private String collection;
+
+    @Column(name = "size", nullable = false)
+    private int size;
+
+    @Column(name = "image", nullable = false)
+    private String img;
 }
