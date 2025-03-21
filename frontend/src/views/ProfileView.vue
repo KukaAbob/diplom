@@ -1,105 +1,156 @@
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import api from '@/api/api' // Импортируем API-инстанс
-import { jwtDecode } from 'jwt-decode'
-
-const router = useRouter()
-const user = ref(null)
-const loading = ref(true)
-const error = ref(null)
-
-// Функция получения id пользователя из токена
-const getUserIdFromToken = () => {
-  const token = localStorage.getItem('jwtToken')
-  console.log(token)
-  if (!token) return null
-  try {
-    const decoded = jwtDecode(token)
-    return decoded.id // id должен быть в payload токена
-  } catch (err) {
-    console.error('Ошибка декодирования токена', err)
-    return null
-  }
-}
-
-// Функция загрузки профиля
-const fetchUserProfile = async () => {
-  const token = localStorage.getItem('jwtToken')
-  const userId = getUserIdFromToken()
-
-  if (!token || !userId) {
-    router.push('/registration') // Если токена или id нет, отправляем на регистрацию
-    return
-  }
-
-  try {
-    const response = await api.get(`/api/profile/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    user.value = response.data
-  } catch (err) {
-    error.value = 'Ошибка загрузки профиля!'
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
-}
-
-// Выход из аккаунта
-const logout = () => {
-  localStorage.removeItem('jwtToken')
-  router.push('/')
-}
-
-// Загружаем данные при монтировании
-onMounted(fetchUserProfile)
-</script>
-
+// ProfilePage.vue
 <template>
-  <div class="profile-container">
-    <h1>Профиль</h1>
+  <div>
+    <!-- Back button -->
+    <div class="back-button" @click="goBack">
+      <i class="back-arrow">←</i>
+      <span>Back</span>
+    </div>
 
-    <div v-if="loading">Загрузка...</div>
-    <div v-else-if="error">{{ error }}</div>
-    <div v-else>
-      <div class="profile-info">
-        <p><strong>Имя:</strong> {{ user.firstName }}</p>
-        <p><strong>Фамилия:</strong> {{ user.lastName }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>Телефон:</strong> {{ user.phone }}</p>
+    <div class="profile-container">
+      <!-- Left content area - changes based on selected menu item -->
+      <div class="content-area">
+        <router-view></router-view>
       </div>
 
-      <button class="logout-button" @click="logout">Выйти</button>
+      <!-- Right sidebar menu -->
+      <div class="sidebar-menu">
+        <div class="menu-item" @click="navigateTo('purchases')">
+          <i class="icon-purchases"></i>
+          <span>My purchases</span>
+          <i class="icon-arrow-right"></i>
+        </div>
+
+        <div class="menu-item" @click="navigateTo('returns')">
+          <i class="icon-returns"></i>
+          <span>Returns</span>
+          <i class="icon-arrow-right"></i>
+        </div>
+
+        <div class="menu-item" @click="navigateTo('details')">
+          <i class="icon-details"></i>
+          <span>Personal details</span>
+          <i class="icon-arrow-right"></i>
+        </div>
+
+        <div class="menu-item" @click="navigateTo('addresses')">
+          <i class="icon-addresses"></i>
+          <span>Addresses</span>
+          <i class="icon-arrow-right"></i>
+        </div>
+
+        <div class="menu-item" @click="navigateTo('payment')">
+          <i class="icon-payment"></i>
+          <span>Payment methods</span>
+          <i class="icon-arrow-right"></i>
+        </div>
+
+        <div class="menu-item" @click="navigateTo('newsletter')">
+          <i class="icon-newsletter"></i>
+          <span>Newsletter</span>
+          <i class="icon-arrow-right"></i>
+        </div>
+
+        <div class="menu-item" @click="navigateTo('service')">
+          <i class="icon-service"></i>
+          <span>Customer service</span>
+          <i class="icon-arrow-right"></i>
+        </div>
+
+        <div class="menu-item" @click="navigateTo('privacy')">
+          <i class="icon-privacy"></i>
+          <span>Privacy policy</span>
+          <i class="icon-arrow-right"></i>
+        </div>
+
+        <div class="logout-button" @click="logout">Log out</div>
+      </div>
     </div>
   </div>
 </template>
 
+<script>
+export default {
+  methods: {
+    navigateTo(section) {
+      this.$router.push(`/profile/${section}`)
+    },
+    goBack() {
+      // Navigate back to previous page
+      // You can adjust this to go to a specific page if needed
+      this.$router.push('/')
+    },
+    logout() {
+      localStorage.removeItem('jwtToken')
+      localStorage.removeItem('userEmail')
+      isAuthenticated.value = false
+      isProfileMenuOpen.value = false
+      router.push('/')
+    },
+  },
+}
+</script>
+
 <style scoped>
-.profile-container {
-  max-width: 600px;
-  margin: auto;
-  padding: 20px;
-  text-align: center;
+.back-button {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 20px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
+  top: 30px;
+  position: relative;
 }
 
-.profile-info {
-  text-align: left;
-  background: #f9f9f9;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 20px;
+.back-arrow {
+  font-size: 24px;
+  margin-right: 5px;
+}
+
+.profile-container {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 20px;
+}
+
+.content-area {
+  flex: 1;
+  padding-right: 20px;
+}
+
+.sidebar-menu {
+  width: 300px;
+  border-left: 1px solid #eee;
+  padding-left: 20px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 0;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.menu-item i {
+  margin-right: 10px;
+}
+
+.menu-item .icon-arrow-right {
+  margin-left: auto;
 }
 
 .logout-button {
-  background: red;
+  margin-top: 30px;
+  background-color: #000;
   color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
+  padding: 15px;
+  text-align: center;
+  border-radius: 30px;
   cursor: pointer;
-  border-radius: 5px;
 }
 </style>

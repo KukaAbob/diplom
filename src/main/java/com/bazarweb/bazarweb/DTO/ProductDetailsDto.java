@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.bazarweb.bazarweb.enums.ProductStatus;
-import com.bazarweb.bazarweb.model.Review;
+import com.bazarweb.bazarweb.model.Product.ProductVariant;
+import com.bazarweb.bazarweb.model.User.Review;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -25,4 +26,5 @@ public class ProductDetailsDto {
     private String imagePath;
     private double averageRating;
     private List<Review> reviews;
+    private List<ProductVariant> variants;
 }

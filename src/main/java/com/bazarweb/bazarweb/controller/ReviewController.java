@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bazarweb.bazarweb.DTO.ReviewDTO;
-import com.bazarweb.bazarweb.model.Review;
-import com.bazarweb.bazarweb.service.ReviewService;
+import com.bazarweb.bazarweb.model.User.Review;
+import com.bazarweb.bazarweb.service.User.ReviewService;
 
 import lombok.RequiredArgsConstructor;
 

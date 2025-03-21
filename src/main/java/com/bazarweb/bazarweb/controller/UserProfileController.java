@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bazarweb.bazarweb.DTO.OrderDTO;
 import com.bazarweb.bazarweb.DTO.UserDTO;
 import com.bazarweb.bazarweb.enums.UserRole;
-import com.bazarweb.bazarweb.model.User;
-import com.bazarweb.bazarweb.service.UserService;
+import com.bazarweb.bazarweb.model.User.User;
+import com.bazarweb.bazarweb.service.User.UserService;
 
 import lombok.RequiredArgsConstructor;
 

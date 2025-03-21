@@ -1,6 +1,5 @@
 package com.bazarweb.bazarweb.JWT;
 
-import com.bazarweb.bazarweb.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.bazarweb.bazarweb.service.User.UserService;
 
 import java.io.IOException;
 

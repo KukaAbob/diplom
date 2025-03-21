@@ -1,9 +1,9 @@
 package com.bazarweb.bazarweb.controller;
 
-import com.bazarweb.bazarweb.DTO.JwtAuthenticationResponse;
-import com.bazarweb.bazarweb.DTO.SignInRequest;
-import com.bazarweb.bazarweb.DTO.SignUpRequest;
-import com.bazarweb.bazarweb.service.AuthenticationService;
+import com.bazarweb.bazarweb.DTO.Requests.Auth.JwtAuthenticationResponse;
+import com.bazarweb.bazarweb.DTO.Requests.Auth.SignInRequest;
+import com.bazarweb.bazarweb.DTO.Requests.Auth.SignUpRequest;
+import com.bazarweb.bazarweb.service.Admin.AuthenticationService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

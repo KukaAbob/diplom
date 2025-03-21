@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 
 import com.bazarweb.bazarweb.JWT.JwtAuthFilter;
-import com.bazarweb.bazarweb.service.UserService;
+import com.bazarweb.bazarweb.service.User.UserService;
 
 
 @Configuration

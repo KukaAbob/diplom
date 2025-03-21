@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bazarweb.bazarweb.DTO.OrderDTO;
 import com.bazarweb.bazarweb.DTO.OrderRequestDto;
 import com.bazarweb.bazarweb.exception.EmptyCartException;
-import com.bazarweb.bazarweb.model.Order;
-import com.bazarweb.bazarweb.service.OrderService;
+import com.bazarweb.bazarweb.model.Order.Order;
+import com.bazarweb.bazarweb.service.Order.OrderService;
 
 @RestController
 @RequestMapping("/api/order")

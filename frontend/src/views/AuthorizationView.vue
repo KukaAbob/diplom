@@ -1,15 +1,17 @@
 <template>
   <div class="header">
-    <button class="close-btn">
-      <img src="@/assets/img/icons/logo2.svg" alt="Закрыть" />
-    </button>
+    <RouterLink to="/">
+      <button class="close-btn">
+        <img src="@/assets/img/icons/logo2.svg" alt="Закрыть" />
+      </button>
+    </RouterLink>
     <img src="@/assets/img/logo.png" alt="Логотип" class="logo" />
   </div>
   <div class="content">
     <div class="main-content">
-      <h1 class="title">ВОЙДИТЕ ИЛИ СОЗДАЙТЕ АККАУНТ</h1>
+      <h1 class="title animated-text">ВОЙДИТЕ ИЛИ СОЗДАЙТЕ АККАУНТ</h1>
       <div class="auth">
-        <div class="authorization">
+        <div class="authorization animated-text">
           <p class="subtitle">
             У ВАС УЖЕ ЕСТЬ УЧЕТНАЯ ЗАПИСЬ? ВВЕДИТЕ СВОИ ДАННЫЕ ДЛЯ ВХОДА В СИСТЕМУ
           </p>
@@ -17,7 +19,7 @@
           <input type="password" placeholder="Пароль" class="input" />
           <button class="btn black-btn">НАЧАТЬ СЕАНС</button>
         </div>
-        <div class="registration">
+        <div class="registration animated-text">
           <p class="subtitle">
             У ВАС НЕТ ЛИЧНОГО КАБИНЕТА? <br />
             ЗАРЕГИСТРИРУЙТЕСЬ
@@ -35,7 +37,7 @@
         </div>
       </div>
     </div>
-    <div class="footer">
+    <div class="footer animated-text">
       <p class="footer-text">ВОЙДИТЕ ИЛИ ЗАРЕГИСТРИРУЙТЕСЬ С</p>
       <img src="@/assets/img/icons/logo3.svg" alt="Google" class="google-logo" />
       <p class="policy">
@@ -49,6 +51,39 @@
 <script setup></script>
 
 <style scoped>
+/* Анимация появления с поднятием */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Общий стиль анимации */
+.animated-text {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* Добавляем задержку для последовательного появления */
+.title {
+  animation-delay: 0.1s;
+}
+.authorization {
+  animation-delay: 0.2s;
+}
+.registration {
+  animation-delay: 0.3s;
+}
+.footer {
+  animation-delay: 0.4s;
+}
+
+/* Основные стили */
 .content {
   max-width: 900px;
   margin: auto;
@@ -132,11 +167,9 @@
   width: 20px;
   margin-right: 10px;
 }
-
 .main-content {
   margin-bottom: 150px;
 }
-
 .footer {
   margin-top: 30px;
   text-align: center;

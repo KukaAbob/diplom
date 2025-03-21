@@ -130,7 +130,6 @@
             <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
@@ -144,13 +143,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.17.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations -->
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
@@ -169,6 +166,10 @@
         <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         <version>2.2.0</version>
     </dependency>
+            <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+        </dependency>
 
 
 
@@ -191,5 +192,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

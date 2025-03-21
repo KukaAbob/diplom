@@ -5,11 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.bazarweb.bazarweb.model.Image;
-import com.bazarweb.bazarweb.model.Product;
-import com.bazarweb.bazarweb.repository.ImageRepository;
-import com.bazarweb.bazarweb.repository.ProductRepository;
-import com.bazarweb.bazarweb.service.ImageService;
+import com.bazarweb.bazarweb.model.Product.Image;
+import com.bazarweb.bazarweb.model.Product.Product;
+import com.bazarweb.bazarweb.repository.Product.ImageRepository;
+import com.bazarweb.bazarweb.repository.Product.ProductRepository;
+import com.bazarweb.bazarweb.service.Product.ImageService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,7 +36,7 @@ public class ImageController {
     }
 
         @GetMapping("/{id}")
-        public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
+        public ResponseEntity<byte[]> getImage(@PathVariable int id) {
         try {
             Image image = imageRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Image not found with id: " + id));

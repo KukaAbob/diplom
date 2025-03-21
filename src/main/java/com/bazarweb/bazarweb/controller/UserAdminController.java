@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bazarweb.bazarweb.DTO.UserDTO;
-import com.bazarweb.bazarweb.service.AdminService;
+import com.bazarweb.bazarweb.service.Admin.AdminService;
 
 @RestController
 @RequestMapping("/api/admin/users")

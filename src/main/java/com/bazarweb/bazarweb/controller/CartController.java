@@ -2,20 +2,22 @@ package com.bazarweb.bazarweb.controller;
  
 import java.util.List; 
  
-import org.springframework.http.ResponseEntity; 
-import org.springframework.web.bind.annotation.GetMapping; 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping; 
 import org.springframework.web.bind.annotation.RequestBody; 
 import org.springframework.web.bind.annotation.RequestMapping; 
 import org.springframework.web.bind.annotation.RequestParam; 
-import org.springframework.web.bind.annotation.RestController; 
- 
-import com.bazarweb.bazarweb.DTO.AddToCartRequest; 
+import org.springframework.web.bind.annotation.RestController;
+
 import com.bazarweb.bazarweb.DTO.CartDTO; 
-import com.bazarweb.bazarweb.DTO.CartItemDTO; 
-import com.bazarweb.bazarweb.DTO.ClearCartRequest; 
-import com.bazarweb.bazarweb.model.Cart; 
-import com.bazarweb.bazarweb.service.CartService; 
+import com.bazarweb.bazarweb.DTO.CartItemDTO;
+import com.bazarweb.bazarweb.DTO.Requests.Cart.AddToCartRequest;
+import com.bazarweb.bazarweb.DTO.Requests.Cart.ClearCartRequest;
+import com.bazarweb.bazarweb.model.Cart.Cart;
+import com.bazarweb.bazarweb.service.Cart.CartService; 
  
  
  
@@ -53,6 +55,13 @@ public class CartController {
         Cart cart = cartService.addToCart(request.getEmail(), request.getProductId(), request.getQuantity()); 
         return ResponseEntity.ok(toDTO(cart)); 
     } 
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteFromCart(@PathVariable int id) {
+        cartService.removeCartItem(id);
+        return ResponseEntity.ok("Товар удален из корзины");
+    }
+    
      
     @PostMapping("/clear") 
     public ResponseEntity<CartDTO> clearCart(@RequestBody ClearCartRequest request) { 
