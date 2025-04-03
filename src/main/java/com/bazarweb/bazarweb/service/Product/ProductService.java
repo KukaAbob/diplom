@@ -31,11 +31,6 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
-    public Product getByCode(int code){
-        return productRepository.findByCode(code)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-    }
-
     public Product getByName(String name){
         return productRepository.findByName(name)
                 .orElseThrow(() -> new RuntimeException("Product not found"));

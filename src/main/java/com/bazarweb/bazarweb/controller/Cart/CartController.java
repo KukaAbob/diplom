@@ -1,4 +1,4 @@
-package com.bazarweb.bazarweb.controller; 
+package com.bazarweb.bazarweb.controller.Cart; 
  
 import java.util.List; 
  

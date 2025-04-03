@@ -1,12 +1,18 @@
 package com.bazarweb.bazarweb.model.Product;
 
+import java.io.IOException;
+import java.util.Optional;
+
+import org.hibernate.annotations.Type;
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -19,23 +25,26 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "images")
+@Table(name = "image_storage")
 public class Image {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "name", nullable = false, length = 255)
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "file_path", nullable = false, length = 500)
-    private String filePath;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
-    @Column(name = "content_type", nullable = false, length = 100)
+    @Lob
+    @Column(name = "file_content")
+    private byte[] fileContent;
+
+    @Column(name = "content_type")
     private String contentType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @Column(name = "file_size")
+    private int fileSize;
 }

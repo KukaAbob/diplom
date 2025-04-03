@@ -1,4 +1,4 @@
-package com.bazarweb.bazarweb.controller;
+package com.bazarweb.bazarweb.controller.User;
 
 import com.bazarweb.bazarweb.DTO.Requests.Auth.JwtAuthenticationResponse;
 import com.bazarweb.bazarweb.DTO.Requests.Auth.SignInRequest;

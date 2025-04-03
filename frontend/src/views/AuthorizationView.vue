@@ -38,8 +38,6 @@
       </div>
     </div>
     <div class="footer animated-text">
-      <p class="footer-text">ВОЙДИТЕ ИЛИ ЗАРЕГИСТРИРУЙТЕСЬ С</p>
-      <img src="@/assets/img/icons/logo3.svg" alt="Google" class="google-logo" />
       <p class="policy">
         Осуществляя вход или регистрацию с использованием моего профиля в социальной сети, я даю
         согласие на связывание моего аккаунта в соответствии с Политикой конфиденциальности.

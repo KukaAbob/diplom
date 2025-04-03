@@ -7,12 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.bazarweb.bazarweb.model.Product.Image;
+import com.bazarweb.bazarweb.model.Product.Product;
 
 @Repository
 public interface ImageRepository extends JpaRepository<Image, Integer> {
-    Optional<Image> findByName(String name);
-    List<Image> findByProductId(int productId);
-    boolean existsByName(String name);
-    void deleteByProductId(int productId);
-    List<Image> findByNameAndContentType(String name, String contentType);
+    Optional<Image> findByProductId(int productId);
+    List<Image> findAllByProduct(Product product);
 }

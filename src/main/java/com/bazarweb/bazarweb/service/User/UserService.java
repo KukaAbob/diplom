@@ -1,5 +1,6 @@
 package com.bazarweb.bazarweb.service.User;
 
+import com.bazarweb.bazarweb.DTO.Requests.Auth.UpdateUserRequest;
 import com.bazarweb.bazarweb.configuration.EncryptionConfiguration;
 import com.bazarweb.bazarweb.model.User.User;
 import com.bazarweb.bazarweb.repository.User.UserRepository;
@@ -20,10 +21,6 @@ public class UserService {
         this.encryptionConfiguration = encryptionConfiguration;
     }
 
-    public User save(User user){
-        return userRepository.save(user);
-    }
-
     public User userCreate(User user){
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Username already exists");
@@ -32,9 +29,8 @@ public class UserService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
-        user.getPhone();
 
-        return save(user);
+        return userRepository.save(user);
     }
 
     public User getUserByUsername(String username){
@@ -56,16 +52,45 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
+    // Оригинальный метод updateProfile остается для обратной совместимости
     public void updateProfile(String username, User updatedUser) {
         User existingUser = findByUsername(username);
-        existingUser.setEmail(updatedUser.getEmail());
-
+        
+        if (updatedUser.getEmail() != null) {
+            existingUser.setEmail(updatedUser.getEmail());
+        }
+        
+        if (updatedUser.getPhone() != null) {
+            existingUser.setPhone(updatedUser.getPhone());
+        }
+        existingUser.setAddress(updatedUser.getAddress());
+        
         if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-            String encodedPassword = encryptionConfiguration.passwordEncoder().encode(updatedUser.getPassword()); // Используем метод из EncryptionConfiguration
+            String encodedPassword = encryptionConfiguration.passwordEncoder().encode(updatedUser.getPassword());
             existingUser.setPassword(encodedPassword);
         }
-
+        
         userRepository.save(existingUser);
+    }
+    
+    // Новый метод для работы с DTO
+    public void updateUserProfile(String username, UpdateUserRequest profileDTO) {
+        User existingUser = findByUsername(username);
+        
+        // Обновляем email если он предоставлен
+        if (profileDTO.getEmail() != null && !profileDTO.getEmail().isEmpty()) {
+            existingUser.setEmail(profileDTO.getEmail());
+        }
+        
+        // Обновляем телефон если он предоставлен
+        if (profileDTO.getPhone() != null) {
+            existingUser.setPhone(profileDTO.getPhone());
+            System.out.println("Setting phone number: " + profileDTO.getPhone());
+        }
+        
+        // Сохраняем обновленного пользователя
+        User savedUser = userRepository.save(existingUser);
+        System.out.println("Saved user with phone: " + savedUser.getPhone());
     }
 
     public void deleteUser(String username) {

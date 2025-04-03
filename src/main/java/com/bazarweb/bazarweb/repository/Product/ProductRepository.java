@@ -10,7 +10,5 @@ import com.bazarweb.bazarweb.model.Product.Product;
 public interface ProductRepository extends JpaRepository<Product, Integer> {
     Optional<Product> findById(int id);
     Optional<Product> findByName(String name);
-    Optional<Product> findByCode(int code);
     boolean existsById(int id);
-    boolean existsByCode(int code);
 }

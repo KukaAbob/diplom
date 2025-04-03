@@ -53,19 +53,19 @@ public class User implements UserDetails {
     @Column(name = "role", nullable = false)
     private UserRole role;
 
-    @Column(name = "address")
-    private String address;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Address> address;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Payment> payment;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
-
-    @Column(name = "blocked", nullable = false)
-    private boolean blocked;
 
     @Override
     public boolean isAccountNonExpired() {

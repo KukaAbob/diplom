@@ -1,6 +1,6 @@
 <template>
   <div class="cart-container">
-    <div class="back-button">
+    <div class="back-button" @click="goBack">
       <i class="back-arrow">←</i>
       <span>Back</span>
     </div>

@@ -1,4 +1,4 @@
-package com.bazarweb.bazarweb.controller;
+package com.bazarweb.bazarweb.controller.Wishlist;
 
 import java.util.List;
 

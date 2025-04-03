@@ -10,23 +10,13 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class UserDTO {
     private int id;
     private String username;
     private String email;
     private String phone;
-    private String address;
+    private List<AddressDto> address;
     private UserRole role;
     private List<OrderDTO> orders;
-    private boolean blocked;
-
-    public UserDTO(int id, String username, String email, UserRole role, boolean blocked) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.role = role;
-        this.blocked = blocked;
-    }
-
+    private List<PaymentDto> payment;
 }

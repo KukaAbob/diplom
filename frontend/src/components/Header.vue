@@ -39,13 +39,10 @@
         <!-- Категории -->
         <div class="categories">
           <h2 class="category-header">НОВИНКИ</h2>
-          <ul class="category-list">
-            <li class="category-item">B IS FOR BASICS <span class="new-tag">NEW</span></li>
-            <li class="category-item">JEANS FIT GUIDE</li>
-            <li class="category-item">ИСКУССТВЕННАЯ ЗАМША</li>
-          </ul>
 
-          <h2 class="category-header">ОДЕЖДА</h2>
+          <RouterLink to="/catalog">
+            <h2 class="category-header">ОДЕЖДА</h2>
+          </RouterLink>
           <ul class="category-list">
             <li class="category-item">ДЖИНСЫ</li>
             <li class="category-item">БРЮКИ</li>
@@ -60,11 +57,6 @@
           <h2 class="category-header">ОБУВЬ</h2>
           <h2 class="category-header">АКСЕССУАРЫ</h2>
           <h2 class="category-header">СУМКИ</h2>
-
-          <div class="stradilooks">
-            <h2 class="category-header">#STRADILOOKS</h2>
-            <img src="@/assets/img/icons/profile.svg" alt="Phone" class="phone-icon" />
-          </div>
         </div>
       </div>
 
@@ -184,6 +176,12 @@
       <RouterLink v-else to="/auth" class="cart-button">
         <div class="icons">
           <img src="@/assets/img/icons/profile.svg" alt="Профиль" class="icon" />
+        </div>
+      </RouterLink>
+
+      <RouterLink to="/wishlist" class="cart-button">
+        <div class="icons">
+          <img src="@/assets/img/icons/wishlist.svg" alt="Список желаний" class="icon" />
         </div>
       </RouterLink>
 
@@ -695,7 +693,7 @@ button {
   border: 1px solid #6b6161;
   background: transparent;
   height: 30px;
-  width: 250px;
+  width: 190px;
   border-radius: 15px;
   font-size: 16px;
   padding-left: 15px;

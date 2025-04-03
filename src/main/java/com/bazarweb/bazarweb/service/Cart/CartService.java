@@ -3,7 +3,6 @@ package com.bazarweb.bazarweb.service.Cart;
 import org.springframework.stereotype.Service;
 import com.bazarweb.bazarweb.enums.ProductStatus;
 import com.bazarweb.bazarweb.model.Cart.Cart;
-import com.bazarweb.bazarweb.model.Cart.CartItem;
 import com.bazarweb.bazarweb.model.Product.Product;
 import com.bazarweb.bazarweb.model.User.User;
 import com.bazarweb.bazarweb.repository.Cart.CartItemRepository;

@@ -1,11 +1,13 @@
 package com.bazarweb.bazarweb.model.Product;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import com.bazarweb.bazarweb.enums.Gender;
 import com.bazarweb.bazarweb.enums.ProductStatus;
 import com.bazarweb.bazarweb.model.Catalog.Category;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,9 +34,6 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    @Column(name = "code", unique = true, nullable = false)
-    private int code;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -59,6 +59,9 @@ public class Product {
     @Column(name = "collection")
     private String collection;
 
-    @Column(name = "img")
-    private String img;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Image> img;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ProductVariant> variants;
 }

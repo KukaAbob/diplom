@@ -1,4 +1,3 @@
-// ProfilePage.vue
 <template>
   <div>
     <!-- Back button -->

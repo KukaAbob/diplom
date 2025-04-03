@@ -1,4 +1,4 @@
-package com.bazarweb.bazarweb.controller;
+package com.bazarweb.bazarweb.controller.Order;
 
 import java.util.List;
 

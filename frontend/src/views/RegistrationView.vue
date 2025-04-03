@@ -28,6 +28,7 @@ const register = async () => {
     localStorage.setItem('jwtToken', response.data.token)
     console.log(response.data)
     console.log(localStorage.getItem('jwtToken'))
+    console.log(userData)
 
     // Перенаправляем пользователя на главную страницу
     router.push('/')
