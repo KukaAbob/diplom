@@ -2,21 +2,19 @@ package com.bazarweb.bazarweb.service.Product;
 
 import java.util.List;
 
-import org.apache.http.HttpStatus;
-import org.apache.http.protocol.HTTP;
+
 import org.springframework.stereotype.Service;
 
 import com.bazarweb.bazarweb.model.Product.Product;
 import com.bazarweb.bazarweb.repository.Product.ProductRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class ProductService {
     
     private final ProductRepository productRepository;
-    
-    public ProductService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
     
     public Product save(Product product){
         return productRepository.save(product);

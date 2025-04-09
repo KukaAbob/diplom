@@ -1,4 +1,4 @@
-package com.bazarweb.bazarweb.DTO;
+package com.bazarweb.bazarweb.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,4 +13,5 @@ public class AddressDto {
     private String city;
     private int zipCode;
     private String country;
+    private int userId;
 }

@@ -1,9 +1,11 @@
 package com.bazarweb.bazarweb.service.User;
 
-import com.bazarweb.bazarweb.DTO.Requests.Auth.UpdateUserRequest;
 import com.bazarweb.bazarweb.configuration.EncryptionConfiguration;
+import com.bazarweb.bazarweb.dto.Requests.Auth.UpdateUserRequest;
 import com.bazarweb.bazarweb.model.User.User;
 import com.bazarweb.bazarweb.repository.User.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,15 +13,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final EncryptionConfiguration encryptionConfiguration; // Внедряем бина из конфигурации
-
-    public UserService(UserRepository userRepository, EncryptionConfiguration encryptionConfiguration) {
-        this.userRepository = userRepository;
-        this.encryptionConfiguration = encryptionConfiguration;
-    }
 
     public User userCreate(User user){
         if (userRepository.existsByUsername(user.getUsername())) {

@@ -8,11 +8,11 @@ import com.bazarweb.bazarweb.model.User.Payment;
 import com.bazarweb.bazarweb.repository.User.PaymentRepository;
 
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
@@ -67,5 +67,9 @@ public class PaymentService {
         if (!payment.getCvvCode().matches("\\d+") || (payment.getCvvCode().length() != 3 && payment.getCvvCode().length() != 4)) {
             throw new IllegalArgumentException("CVV must be 3 or 4 digits");
         }
+    }
+
+    public Payment findById(int id){
+        return paymentRepository.findById(id);
     }
 }

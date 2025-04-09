@@ -1,6 +1,6 @@
 package com.bazarweb.bazarweb.service.Order;
 
-import com.bazarweb.bazarweb.DTO.OrderDTO;
+import com.bazarweb.bazarweb.dto.OrderDTO;
 import com.bazarweb.bazarweb.enums.OrderStatus;
 import com.bazarweb.bazarweb.exception.EmptyCartException;
 import com.bazarweb.bazarweb.model.Cart.Cart;
@@ -12,6 +12,8 @@ import com.bazarweb.bazarweb.repository.Cart.CartRepository;
 import com.bazarweb.bazarweb.repository.Order.OrderRepository;
 import com.bazarweb.bazarweb.repository.User.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,16 +24,11 @@ import java.util.Optional;
 import java.util.Random;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
-
-    public OrderService(CartRepository cartRepository, OrderRepository orderRepository, UserRepository userRepository) {
-        this.cartRepository = cartRepository;
-        this.userRepository = userRepository;
-        this.orderRepository = orderRepository;
-    }
     
     public List<OrderDTO> getUserOrders(String username) {
         Optional<User> user = userRepository.findByUsername(username);

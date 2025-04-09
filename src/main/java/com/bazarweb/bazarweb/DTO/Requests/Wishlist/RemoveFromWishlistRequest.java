@@ -1,4 +1,4 @@
-package com.bazarweb.bazarweb.DTO.Requests.Wishlist;
+package com.bazarweb.bazarweb.dto.Requests.Wishlist;
 
 import lombok.Getter;
 import lombok.Setter;

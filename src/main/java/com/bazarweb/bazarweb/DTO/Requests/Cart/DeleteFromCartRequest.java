@@ -1,4 +1,4 @@
-package com.bazarweb.bazarweb.DTO.Requests.Cart;
+package com.bazarweb.bazarweb.dto.Requests.Cart;
 
 import lombok.Getter;
 import lombok.Setter;

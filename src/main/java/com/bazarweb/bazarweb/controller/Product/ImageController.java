@@ -10,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.bazarweb.bazarweb.model.Product.Image;
 import com.bazarweb.bazarweb.service.Product.ImageService;
 
+import lombok.RequiredArgsConstructor;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,12 +19,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/images")
+@RequiredArgsConstructor
 public class ImageController {
-    private ImageService imageService;
-
-    public ImageController(ImageService imageService){
-        this.imageService = imageService;
-    }
+    private final ImageService imageService;
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadImage(

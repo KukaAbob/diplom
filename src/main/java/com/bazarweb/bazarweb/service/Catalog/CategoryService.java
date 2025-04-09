@@ -7,14 +7,13 @@ import org.springframework.stereotype.Service;
 import com.bazarweb.bazarweb.model.Catalog.Category;
 import com.bazarweb.bazarweb.repository.Catalog.CategoryRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
-
-    public CategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
 
     public Category save(Category category){
         return categoryRepository.save(category);

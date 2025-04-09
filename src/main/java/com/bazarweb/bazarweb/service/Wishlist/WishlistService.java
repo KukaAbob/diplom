@@ -15,17 +15,14 @@ import com.bazarweb.bazarweb.repository.User.UserRepository;
 import com.bazarweb.bazarweb.repository.Wishlist.WishlistRepository;
 import com.bazarweb.bazarweb.service.Cart.CartService;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class WishlistService {
     private final WishlistRepository wishlistRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
-    public WishlistService(WishlistRepository wishlistRepository, UserRepository userRepository, 
-                           ProductRepository productRepository) {
-        this.wishlistRepository = wishlistRepository;
-        this.userRepository = userRepository;
-        this.productRepository = productRepository;
-    }
 
     public Wishlist findOrCreateWishlistByEmail(String email) {
         User user = userRepository.getUserByEmail(email)

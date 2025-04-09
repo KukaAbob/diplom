@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bazarweb.bazarweb.DTO.AddressDto;
-import com.bazarweb.bazarweb.DTO.OrderDTO;
-import com.bazarweb.bazarweb.DTO.PaymentDto;
-import com.bazarweb.bazarweb.DTO.UserDTO;
-import com.bazarweb.bazarweb.DTO.Requests.Auth.UpdateUserRequest;
+import com.bazarweb.bazarweb.dto.AddressDto;
+import com.bazarweb.bazarweb.dto.OrderDTO;
+import com.bazarweb.bazarweb.dto.PaymentDto;
+import com.bazarweb.bazarweb.dto.UserDTO;
+import com.bazarweb.bazarweb.dto.Requests.Auth.UpdateUserRequest;
 import com.bazarweb.bazarweb.enums.UserRole;
 import com.bazarweb.bazarweb.model.User.User;
 import com.bazarweb.bazarweb.service.User.UserService;
@@ -39,7 +39,7 @@ public class UserProfileController {
             .map(order -> new OrderDTO(order.getId(), order.getDate(), order.getStatus(), order.getTotal(), order.isExecuted()))
             .collect(Collectors.toList());
         List<AddressDto> addressDtos = user.getAddress().stream()
-            .map(address -> new AddressDto(address.getId(), address.getCity(), address.getCountry(), address.getZipCode(), address.getStreet()))
+            .map(address -> new AddressDto(address.getId(), address.getCity(), address.getCountry(), address.getZipCode(), address.getStreet(), address.getUser().getId()))
             .collect(Collectors.toList());
         List<PaymentDto> paymenDtos = user.getPayment().stream()
             .map(payment -> new PaymentDto(payment.getId(), payment.getCardNumber(), payment.getExpiryDate(), payment.getCvvCode()))

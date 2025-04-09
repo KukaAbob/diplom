@@ -12,19 +12,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bazarweb.bazarweb.DTO.UserDTO;
+import com.bazarweb.bazarweb.dto.UserDTO;
 import com.bazarweb.bazarweb.service.Admin.AdminService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/admin/users")
 //@PreAuthorize("hasRole('ADMIN')") // Ограничение доступа только для администраторов
+@RequiredArgsConstructor
 public class UserAdminController {
 
     private final AdminService adminService;
-
-    public UserAdminController(AdminService AdminService) {
-        this.adminService = AdminService;
-    }
 
     // Получение списка всех пользователей
     @GetMapping
@@ -45,13 +44,6 @@ public class UserAdminController {
     public ResponseEntity<Void> deleteUser(@PathVariable int id) {
         adminService.deleteUser(id);
         return ResponseEntity.noContent().build();
-    }
-
-    // Блокировка или разблокировка пользователя
-    @PatchMapping("/{id}/block")
-    public ResponseEntity<UserDTO> blockOrUnblockUser(@PathVariable int id, @RequestParam boolean blocked) {
-        UserDTO updatedUser = adminService.setUserBlockedStatus(id, blocked);
-        return ResponseEntity.ok(updatedUser);
     }
 
     // Изменение роли пользователя

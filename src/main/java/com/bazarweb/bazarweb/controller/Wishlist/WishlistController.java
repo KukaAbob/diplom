@@ -11,27 +11,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bazarweb.bazarweb.DTO.WishlistDTO;
-import com.bazarweb.bazarweb.DTO.WishlistItemDTO;
-import com.bazarweb.bazarweb.DTO.Requests.Wishlist.AddToWishlistRequest;
-import com.bazarweb.bazarweb.DTO.Requests.Wishlist.ClearWishlistRequest;
-import com.bazarweb.bazarweb.DTO.Requests.Wishlist.MoveToCartRequest;
-import com.bazarweb.bazarweb.DTO.Requests.Wishlist.RemoveFromWishlistRequest;
+import com.bazarweb.bazarweb.dto.WishlistDTO;
+import com.bazarweb.bazarweb.dto.WishlistItemDTO;
+import com.bazarweb.bazarweb.dto.Requests.Wishlist.AddToWishlistRequest;
+import com.bazarweb.bazarweb.dto.Requests.Wishlist.ClearWishlistRequest;
+import com.bazarweb.bazarweb.dto.Requests.Wishlist.MoveToCartRequest;
+import com.bazarweb.bazarweb.dto.Requests.Wishlist.RemoveFromWishlistRequest;
 import com.bazarweb.bazarweb.model.Wishlist.Wishlist;
 import com.bazarweb.bazarweb.service.Cart.CartService;
 import com.bazarweb.bazarweb.service.Wishlist.WishlistService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/wishlist")
+@RequiredArgsConstructor
 public class WishlistController {
 
     private final WishlistService wishlistService;
     private final CartService cartService;
-
-    public WishlistController(WishlistService wishlistService, CartService cartService) {
-        this.wishlistService = wishlistService;
-        this.cartService = cartService;
-    }
 
     @GetMapping
     public ResponseEntity<WishlistDTO> getWishlist(@RequestParam String email) {

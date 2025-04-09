@@ -8,10 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bazarweb.bazarweb.DTO.CategoryDTO;
+import com.bazarweb.bazarweb.dto.CategoryDTO;
 import com.bazarweb.bazarweb.model.Catalog.Category;
 import com.bazarweb.bazarweb.service.Catalog.CategoryService;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

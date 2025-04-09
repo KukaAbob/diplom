@@ -10,6 +10,7 @@ import com.bazarweb.bazarweb.repository.Product.ImageRepository;
 import com.bazarweb.bazarweb.repository.Product.ProductRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -17,14 +18,10 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class ImageService {
-    private ImageRepository imageRepository;
-    private ProductRepository productRepository;
-
-    public ImageService(ImageRepository imageRepository, ProductRepository productRepository){
-        this.imageRepository = imageRepository;
-        this.productRepository = productRepository;
-    }
+    private final ImageRepository imageRepository;
+    private final ProductRepository productRepository;
 
     public Image saveImage(MultipartFile file, Integer productId) throws IOException {
 

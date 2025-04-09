@@ -7,8 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.bazarweb.bazarweb.DTO.ProductDTO;
-import com.bazarweb.bazarweb.DTO.ProductVariantDTO;
+import com.bazarweb.bazarweb.dto.ProductDTO;
+import com.bazarweb.bazarweb.dto.ProductVariantDTO;
 import com.bazarweb.bazarweb.model.Product.Product;
 import com.bazarweb.bazarweb.model.Product.ProductVariant;
 import com.bazarweb.bazarweb.service.Product.ProductService;

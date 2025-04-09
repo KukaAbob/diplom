@@ -1,6 +1,7 @@
 package com.bazarweb.bazarweb.service.Cart;
 
 import org.springframework.stereotype.Service;
+
 import com.bazarweb.bazarweb.enums.ProductStatus;
 import com.bazarweb.bazarweb.model.Cart.Cart;
 import com.bazarweb.bazarweb.model.Product.Product;
@@ -10,22 +11,18 @@ import com.bazarweb.bazarweb.repository.Cart.CartRepository;
 import com.bazarweb.bazarweb.repository.Product.ProductRepository;
 import com.bazarweb.bazarweb.repository.User.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CartService {
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final CartItemRepository cartItemRepository;
-
-    public CartService(CartRepository cartRepository, UserRepository userRepository, ProductRepository productRepository, CartItemRepository cartItemRepository) {
-        this.cartRepository = cartRepository;
-        this.userRepository = userRepository;
-        this.productRepository = productRepository;
-        this.cartItemRepository = cartItemRepository;
-    }
 
     public Cart findOrCreateCartByEmail(String email) {
         User user = userRepository.getUserByEmail(email)
@@ -60,7 +57,6 @@ public class CartService {
         }
         cartItemRepository.deleteById(cartItemId);
     }
-    
 
     public Cart clearCart(String email) {
         Cart cart = findOrCreateCartByEmail(email);

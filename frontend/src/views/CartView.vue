@@ -5,88 +5,38 @@
       <span>Back</span>
     </div>
 
-    <div v-if="cartStore.loading || loading" class="loading">
+    <div v-if="loading" class="loading">
       <div class="loader"></div>
     </div>
     <div v-else>
-      <div v-if="cartStore.items && cartStore.items.length > 0">
-        <h1 class="cart-title">КОРЗИНА ({{ cartStore.items.length }})</h1>
+      <div v-if="cart && cart.items && cart.items.length > 0">
+        <h1 class="cart-title">КОРЗИНА ({{ cart.items.length }})</h1>
 
         <div class="cart-content">
           <div class="cart-items">
-            <!-- First Item: Brown Jeans -->
-            <div class="cart-item">
+            <div v-for="item in cart.items" :key="item.id" class="cart-item">
               <div class="item-image">
-                <img src="@/assets/img/banner.jpg" alt="Джинсы D92 прямого кроя" />
-              </div>
-              <div class="item-details">
-                <h3>Джинсы D92 прямого кроя</h3>
-                <p>36 | Длинные | Коричневый</p>
-                <p class="item-price">18 990.00 KZT</p>
-                <div class="quantity-control">
-                  <button class="quantity-btn">−</button>
-                  <span class="quantity">1</span>
-                  <button class="quantity-btn">+</button>
-                </div>
-              </div>
-              <div class="item-actions">
-                <button class="wishlist-btn">
-                  <i class="heart-icon">♡</i>
-                </button>
-                <button class="remove-btn">
-                  <i class="trash-icon">🗑</i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Second Item: Hair Bands -->
-            <div class="cart-item">
-              <div class="item-image">
-                <img
-                  src="@/assets/img/banner.jpg"
-                  alt="Набор из двух эластичных повязок на голову"
+                <!-- Используем base64 изображение, если доступно, иначе используем резервное изображение -->
+                <img 
+                  :src="getProductImage(item.productId)" 
+                  :alt="item.productName" 
                 />
               </div>
               <div class="item-details">
-                <h3>Набор из двух эластичных повязок на голову</h3>
-                <p>Единый размер | Небесно-голубой</p>
-                <p class="item-price">4 290.00 KZT</p>
+                <h3>{{ item.productName }}</h3>
+                <p v-if="item.attributes">{{ item.attributes }}</p>
+                <p class="item-price">{{ item.price.toFixed(2) }} KZT</p>
                 <div class="quantity-control">
-                  <button class="quantity-btn">−</button>
-                  <span class="quantity">1</span>
-                  <button class="quantity-btn">+</button>
+                  <button class="quantity-btn" @click="decreaseQuantity(item)">−</button>
+                  <span class="quantity">{{ item.quantity }}</span>
+                  <button class="quantity-btn" @click="increaseQuantity(item)">+</button>
                 </div>
               </div>
               <div class="item-actions">
-                <button class="wishlist-btn">
+                <button class="wishlist-btn" @click="addToWishlist(item)">
                   <i class="heart-icon">♡</i>
                 </button>
-                <button class="remove-btn">
-                  <i class="trash-icon">🗑</i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Third Item: Leather Sandals -->
-            <div class="cart-item">
-              <div class="item-image">
-                <img src="@/assets/img/banner.jpg" alt="Кожаные сандалии с ремешками" />
-              </div>
-              <div class="item-details">
-                <h3>Кожаные сандалии с ремешками</h3>
-                <p>41 | КОРИЧНЕВЫЙ</p>
-                <p class="item-price">21 590.00 KZT</p>
-                <div class="quantity-control">
-                  <button class="quantity-btn">−</button>
-                  <span class="quantity">1</span>
-                  <button class="quantity-btn">+</button>
-                </div>
-              </div>
-              <div class="item-actions">
-                <button class="wishlist-btn">
-                  <i class="heart-icon">♡</i>
-                </button>
-                <button class="remove-btn">
+                <button class="remove-btn" @click="removeFromCart(item.id)">
                   <i class="trash-icon">🗑</i>
                 </button>
               </div>
@@ -97,8 +47,8 @@
           <div class="order-info">
             <h2 class="info-title">ИНФОРМАЦИЯ</h2>
             <div class="info-row">
-              <span>Товаров: 3</span>
-              <span>44 870.00 KZT</span>
+              <span>Товаров: {{ cart.items.length }}</span>
+              <span>{{ cart.totalPrice.toFixed(2) }} KZT</span>
             </div>
             <div class="info-row">
               <span>Доставка на дом</span>
@@ -106,24 +56,13 @@
             </div>
             <div class="info-row total">
               <span>ИТОГО</span>
-              <span>44 870.00 KZT</span>
+              <span>{{ cart.totalPrice.toFixed(2) }} KZT</span>
             </div>
             <div class="total-taxes">
               <span>С учетом налогов</span>
             </div>
 
-            <button class="checkout-btn">ОФОРМИТЬ ЗАКАЗ</button>
-
-            <div class="promo-code">
-              <span class="promo-icon">✓</span>
-              <span>У тебя есть промокод?</span>
-              <i class="chevron-icon">›</i>
-            </div>
-
-            <div class="gift-options">
-              <i class="gift-icon">🎁</i>
-              <span>Выбери варианты подарка далее</span>
-            </div>
+            <button class="checkout-btn" @click="checkout">ОФОРМИТЬ ЗАКАЗ</button>
           </div>
         </div>
       </div>
@@ -131,30 +70,81 @@
       <!-- Empty Cart -->
       <div v-else class="empty-cart">
         <h1 class="cart-title">ВАША КОРЗИНА ПУСТА</h1>
-        <p>Вы также можете восстановить свою корзину для покупок при входе в систему.</p>
-        <button class="login-btn">ВОЙТИ В АККАУНТ</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useCartStore } from '@/stores/cart'
+import { ref, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '@/api/api'
+import defaultImage from '@/assets/img/banner.jpg'
 
-const cartStore = useCartStore()
 const router = useRouter()
 const loading = ref(false)
+const cart = ref(null)
+const productImages = reactive({}) // Объект для хранения изображений по ID товара
+const defaultImagePath = defaultImage
 
 onMounted(async () => {
   await loadCart()
 })
 
+function getEmailFromToken() {
+  const token = localStorage.getItem('jwtToken')
+  if (!token) return null
+  
+  try {
+    // Разбираем JWT токен (он состоит из трех частей, разделенных точками)
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const payload = JSON.parse(window.atob(base64))
+    
+    return payload.email
+  } catch (error) {
+    console.error('Ошибка при получении email из токена:', error)
+    return null
+  }
+}
+
+// Функция для получения изображения товара в формате, пригодном для src
+// Улучшенная функция получения изображения
+function getProductImage(productId) {
+  const images = productImages[productId] || []
+  
+  if (images.length > 0 && images[0]) {
+    // Изображение должно уже быть в правильном формате благодаря обработке в loadProductImages
+    return images[0]
+  }
+  
+  return defaultImagePath
+}
+
 async function loadCart() {
   loading.value = true
+  
   try {
-    await cartStore.fetchCart()
+    const email = getEmailFromToken()
+    if (!email) {
+      loading.value = false
+      return
+    }
+    
+    const response = await api.get(`/api/cart?email=${email}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('jwtToken')}`
+      }
+    })
+    
+    cart.value = response.data
+    
+    // Загрузка изображений для каждого товара в корзине
+    if (cart.value && cart.value.items) {
+      for (const item of cart.value.items) {
+        await loadProductImages(item.productId)
+      }
+    }
   } catch (error) {
     console.error('Ошибка при загрузке корзины:', error)
   } finally {
@@ -162,20 +152,99 @@ async function loadCart() {
   }
 }
 
-function removeFromCart(itemId) {
-  cartStore.removeFromCart(itemId)
+// Функция для загрузки изображений товара (ожидается ответ в формате base64)
+// Функция загрузки изображений в корзине
+async function loadProductImages(productId) {
+  try {
+    const response = await api.get(`/api/images/all/${productId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('jwtToken')}`
+      }
+    })
+    
+    // Добавляем лог для просмотра данных от сервера
+    console.log(`Ответ сервера для изображений товара ${productId}:`, response.data)
+    
+    if (response.data) {
+      productImages[productId] = response.data
+        .map((imageObj) => {
+          // Более универсальная обработка разных форматов данных
+          const base64Data = typeof imageObj === 'object'
+            ? (imageObj.oid || imageObj.base64 || imageObj.image || imageObj)
+            : imageObj
+          
+          // Добавим дополнительный лог для отладки обработки каждого изображения
+          console.log(`Обработка изображения для товара ${productId}:`, {
+            isObject: typeof imageObj === 'object',
+            originalData: imageObj,
+            extractedData: base64Data,
+            hasPrefix: base64Data ? base64Data.startsWith('data:image') : false
+          })
+          
+          if (!base64Data) return null
+          return base64Data.startsWith('data:image')
+            ? base64Data
+            : `data:image/jpeg;base64,${base64Data}`
+        })
+        .filter(Boolean) // Фильтрация null/undefined значений
+      
+      // Добавим лог результата обработки
+      console.log(`Обработанные изображения для товара ${productId}:`, productImages[productId])
+    }
+  } catch (error) {
+    console.error(`Ошибка при загрузке изображений для товара ${productId}:`, error)
+    productImages[productId] = []
+  }
+}
+
+async function removeFromCart(itemId) {
+  loading.value = true
+  
+  try {
+    await api.delete(`/api/cart/delete/${itemId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('jwtToken')}`
+      }
+    })
+    
+    // Обновляем корзину после удаления
+    await loadCart()
+  } catch (error) {
+    console.error('Ошибка при удалении товара из корзины:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+async function updateQuantity(item, change) {
+  try {
+    await api.put(`/api/cart/update/${item.id}`, 
+      { quantity: item.quantity + change },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('jwtToken')}`
+        }
+      }
+    )
+    
+    // Обновляем корзину после изменений
+    await loadCart()
+  } catch (error) {
+    console.error('Ошибка при обновлении количества:', error)
+  }
 }
 
 async function increaseQuantity(item) {
-  await cartStore.addToCart({ productId: item.productId, quantity: 1 })
+  await updateQuantity(item, 1)
 }
 
 async function decreaseQuantity(item) {
   if (item.quantity <= 1) {
-    removeFromCart(item.id)
+    await removeFromCart(item.id)
     return
   }
-  await cartStore.addToCart({ productId: item.productId, quantity: -1 })
+  
+  await updateQuantity(item, -1)
 }
 
 async function addToWishlist(item) {
@@ -187,11 +256,13 @@ async function addToWishlist(item) {
       return
     }
 
-    const userEmail = cartStore.getEmailFromToken(token)
+    const email = getEmailFromToken()
+    if (!email) return
+    
     await api.post(
       '/api/wishlist/add',
       {
-        email: userEmail,
+        email: email,
         productId: item.productId,
       },
       {

@@ -1,8 +1,8 @@
 package com.bazarweb.bazarweb.controller.User;
 
-import com.bazarweb.bazarweb.DTO.Requests.Auth.JwtAuthenticationResponse;
-import com.bazarweb.bazarweb.DTO.Requests.Auth.SignInRequest;
-import com.bazarweb.bazarweb.DTO.Requests.Auth.SignUpRequest;
+import com.bazarweb.bazarweb.dto.Requests.Auth.JwtAuthenticationResponse;
+import com.bazarweb.bazarweb.dto.Requests.Auth.SignInRequest;
+import com.bazarweb.bazarweb.dto.Requests.Auth.SignUpRequest;
 import com.bazarweb.bazarweb.service.Admin.AuthenticationService;
 
 import io.swagger.v3.oas.annotations.Operation;

@@ -17,22 +17,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bazarweb.bazarweb.DTO.OrderDTO;
-import com.bazarweb.bazarweb.DTO.OrderRequestDto;
+import com.bazarweb.bazarweb.dto.OrderDTO;
+import com.bazarweb.bazarweb.dto.OrderRequestDto;
 import com.bazarweb.bazarweb.exception.EmptyCartException;
 import com.bazarweb.bazarweb.model.Order.Order;
 import com.bazarweb.bazarweb.service.Order.OrderService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/order")
+@RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
     private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
-
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
-    }
 
     @PostMapping("/create")
     public ResponseEntity<Order> createOrder(@RequestBody OrderRequestDto request) {

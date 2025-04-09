@@ -1,9 +1,9 @@
 package com.bazarweb.bazarweb.service.Admin;
 
-import com.bazarweb.bazarweb.DTO.Requests.Auth.JwtAuthenticationResponse;
-import com.bazarweb.bazarweb.DTO.Requests.Auth.SignInRequest;
-import com.bazarweb.bazarweb.DTO.Requests.Auth.SignUpRequest;
 import com.bazarweb.bazarweb.JWT.JwtService;
+import com.bazarweb.bazarweb.dto.Requests.Auth.JwtAuthenticationResponse;
+import com.bazarweb.bazarweb.dto.Requests.Auth.SignInRequest;
+import com.bazarweb.bazarweb.dto.Requests.Auth.SignUpRequest;
 import com.bazarweb.bazarweb.enums.UserRole;
 import com.bazarweb.bazarweb.model.User.User;
 import com.bazarweb.bazarweb.service.User.UserService;

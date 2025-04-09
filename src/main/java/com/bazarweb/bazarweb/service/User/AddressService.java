@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service;
 import com.bazarweb.bazarweb.model.User.Address;
 import com.bazarweb.bazarweb.repository.User.AddressRepository;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AddressService {
 
     private final AddressRepository addressRepository;
@@ -24,12 +24,20 @@ public class AddressService {
         existingAddress.setStreet(address.getStreet());
         existingAddress.setZipCode(address.getZipCode());
         existingAddress.setUser(address.getUser());
-        return addressRepository.save(address);
+        return addressRepository.save(existingAddress);
     }
 
     public void deleteAddress(int addressId){
         Address address = addressRepository.findById(addressId);
         addressRepository.delete(address);
+    }
+
+    public Address getAddressById(int addressId){
+        return addressRepository.findById(addressId);
+    }
+
+    public Address findById(int id){
+        return addressRepository.findById(id);
     }
     
 }

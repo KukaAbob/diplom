@@ -6,30 +6,31 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping; 
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody; 
 import org.springframework.web.bind.annotation.RequestMapping; 
 import org.springframework.web.bind.annotation.RequestParam; 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bazarweb.bazarweb.DTO.CartDTO; 
-import com.bazarweb.bazarweb.DTO.CartItemDTO;
-import com.bazarweb.bazarweb.DTO.Requests.Cart.AddToCartRequest;
-import com.bazarweb.bazarweb.DTO.Requests.Cart.ClearCartRequest;
+import com.bazarweb.bazarweb.dto.CartDTO;
+import com.bazarweb.bazarweb.dto.CartItemDTO;
+import com.bazarweb.bazarweb.dto.Requests.Cart.AddToCartRequest;
+import com.bazarweb.bazarweb.dto.Requests.Cart.ClearCartRequest;
+import com.bazarweb.bazarweb.dto.Requests.Cart.UpdateCartRequest;
 import com.bazarweb.bazarweb.model.Cart.Cart;
-import com.bazarweb.bazarweb.service.Cart.CartService; 
+import com.bazarweb.bazarweb.service.Cart.CartService;
+
+import lombok.RequiredArgsConstructor; 
  
  
  
 @RestController 
-@RequestMapping("/api/cart") 
+@RequestMapping("/api/cart")
+@RequiredArgsConstructor
 public class CartController { 
  
     private final CartService cartService; 
- 
-    public CartController(CartService cartService) { 
-        this.cartService = cartService; 
-    } 
  
     @GetMapping 
     public ResponseEntity<CartDTO> getCart(@RequestParam String email) { 
@@ -44,7 +45,8 @@ public class CartController {
                     item.getId(), 
                     item.getProduct().getName(), 
                     item.getQuantity(), 
-                    item.getProduct().getPrice())) 
+                    item.getProduct().getPrice(),
+                    item.getProduct().getId())) 
             .toList(); 
  
         return new CartDTO(cart.getId(), cart.getUser().getEmail(), cart.getTotalPrice(), items); 
@@ -61,12 +63,17 @@ public class CartController {
         cartService.removeCartItem(id);
         return ResponseEntity.ok("Товар удален из корзины");
     }
-    
      
     @PostMapping("/clear") 
     public ResponseEntity<CartDTO> clearCart(@RequestBody ClearCartRequest request) { 
         Cart cart = cartService.clearCart(request.getEmail()); 
         return ResponseEntity.ok(toDTO(cart)); 
-    } 
+    }
+
+    // @PutMapping("/update/{id}")
+    // public ResponseEntity<CartDTO> updateCartItem(@PathVariable int id, @RequestBody UpdateCartRequest request){
+    //     CartDTO updatedCart = cartService.updateCartItem(id, request.getQuantity());
+    //     return ResponseEntity.ok(updatedCart);
+    // }
      
 }

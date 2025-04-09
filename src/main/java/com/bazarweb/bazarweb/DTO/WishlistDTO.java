@@ -1,4 +1,4 @@
-package com.bazarweb.bazarweb.DTO;
+package com.bazarweb.bazarweb.dto;
 
 import java.util.List;
 

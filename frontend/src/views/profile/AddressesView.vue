@@ -12,7 +12,8 @@
       {{ successMessage }}
     </div>
 
-    <div class="empty-state" v-if="!hasAddress && !isEditing">
+    <!-- Пустое состояние (нет адресов) -->
+    <div class="empty-state" v-if="addresses.length === 0 && !isEditing">
       <div class="empty-icon">
         <img src="@/assets/img/icons/profile.svg" alt="Address" />
       </div>
@@ -51,15 +52,14 @@
     </div>
 
     <!-- Отображение списка адресов -->
-    <div class="addresses-list" v-else-if="hasAddress">
-      <div class="address-card">
-        <h3>{{ address.name }}</h3>
-        <p>{{ address.street }}</p>
-        <p>{{ address.city }}, {{ address.zipCode }}</p>
-        <p>{{ address.country }}</p>
+    <div class="addresses-list" v-else-if="addresses.length > 0">
+      <div class="address-card" v-for="(addr, index) in addresses" :key="index">
+        <p>{{ addr.street }}</p>
+        <p>{{ addr.city }}, {{ addr.zipCode }}</p>
+        <p>{{ addr.country }}</p>
         <div class="address-actions">
-          <button class="edit-btn" @click="editAddress">Edit</button>
-          <button class="delete-btn" @click="confirmDeleteAddress">Delete</button>
+          <button class="edit-btn" @click="editAddress(addr, index)">Edit</button>
+          <button class="delete-btn" @click="confirmDeleteAddress(addr.id)">Delete</button>
         </div>
       </div>
       <div class="action-button">
@@ -85,52 +85,42 @@
 
 <script>
 import api from '@/api/api'
-import { jwtDecode } from 'jwt-decode' // Предполагается, что у вас есть библиотека для декодирования JWT
+import { jwtDecode } from 'jwt-decode'
 
 export default {
   data() {
     return {
       userData: null,
-      address: {
-        street: '',
-        city: '',
-        zipCode: '',
-        country: '',
-      },
+      addresses: [], // Массив адресов
       currentAddress: {
+        id: null,
         street: '',
         city: '',
         zipCode: '',
         country: '',
       },
+      selectedAddressId: null,
       isLoading: false,
       errorMessage: '',
       successMessage: '',
       isEditing: false,
       editingExisting: false,
+      editingIndex: -1,
       showDeleteConfirm: false,
     }
   },
   computed: {
-    hasAddress() {
-      return this.address.street && this.address.city
-    },
-    // Format address as a single string for the DTO
-    formattedAddressString() {
-      const addr = this.currentAddress
-      return `${addr.street}, ${addr.city}, ${addr.zipCode}, ${addr.country}`
-    },
     // Получение userId из JWT токена
     userId() {
       try {
-        const token = localStorage.getItem('jwtToken') // или другое имя ключа, где хранится ваш JWT
+        const token = localStorage.getItem('jwtToken')
         if (!token) {
           console.error('JWT token not found in localStorage')
           return null
         }
 
         const decodedToken = jwtDecode(token)
-        return decodedToken.id // в зависимости от структуры вашего JWT
+        return decodedToken.id
       } catch (error) {
         console.error('Failed to decode JWT token:', error)
         return null
@@ -155,9 +145,12 @@ export default {
         const response = await api.get(`/api/profile/${this.userId}`)
         this.userData = response.data
 
-        // Check if user has an address in the response
-        if (this.userData && this.userData.address) {
-          this.parseAddressString(this.userData.address)
+        // Исправление: получаем массив из поля address
+        this.addresses = response.data.address || []
+
+        // Если массив адресов пуст, надо показать пустое состояние
+        if (this.addresses.length === 0) {
+          // Пустое состояние обрабатывается в шаблоне
         }
       } catch (error) {
         console.error('Failed to fetch user data:', error)
@@ -173,33 +166,12 @@ export default {
       }
     },
 
-    // Parse an address string back into components (useful when fetching existing data)
-    parseAddressString(addressString) {
-      if (!addressString) return
-
-      try {
-        // This is a simple parsing example - adjust based on your address format
-        const parts = addressString.split(':')
-        if (parts.length >= 2) {
-          // const name = parts[0].trim(); // Name is not used in the address object
-          const components = parts[1].split(',').map((item) => item.trim())
-
-          this.address = {
-            street: components[0] || '',
-            city: components[1] || '',
-            zipCode: components[2] || '',
-            country: components[3] || '',
-          }
-        }
-      } catch (error) {
-        console.error('Error parsing address string:', error)
-      }
-    },
-
     startEditing() {
       this.isEditing = true
       this.editingExisting = false
+      this.editingIndex = -1
       this.currentAddress = {
+        id: null,
         street: '',
         city: '',
         zipCode: '',
@@ -207,14 +179,17 @@ export default {
       }
     },
 
-    editAddress() {
+    editAddress(address, index) {
       this.isEditing = true
       this.editingExisting = true
-      this.currentAddress = { ...this.address }
+      this.editingIndex = index
+      this.currentAddress = { ...address }
     },
 
     cancelEditing() {
       this.isEditing = false
+      this.successMessage = ''
+      this.errorMessage = ''
     },
 
     async saveAddress() {
@@ -223,31 +198,45 @@ export default {
       this.successMessage = ''
 
       try {
-        // Create the DTO object according to the UpdateUserRequest structure
-        const updateData = {
-          username: this.userData.username,
-          email: this.userData.email,
-          phone: this.userData.phone,
-          address: this.formattedAddressString,
+        const addressData = {
+          ...this.currentAddress,
+          user: {
+            id: this.userId,
+          },
         }
 
-        // Make the PUT request to update the user data with the new address
-        await api.put('/api/profile/update', updateData)
+        let response
+        if (this.editingExisting) {
+          // Обновление существующего адреса
+          response = await api.put(`/api/address/${this.currentAddress.id}`, addressData)
 
-        // Update local data
-        this.address = { ...this.currentAddress }
-        this.successMessage = 'Address updated successfully'
+          // Обновляем в локальном массиве
+          if (this.editingIndex >= 0) {
+            this.addresses[this.editingIndex] = response.data
+          }
+        } else {
+          // Создание нового адреса
+          response = await api.post('/api/address/create', addressData)
+
+          // Добавляем в локальный массив
+          this.addresses.push(response.data)
+        }
+
+        this.successMessage = this.editingExisting
+          ? 'Address updated successfully'
+          : 'Address added successfully'
         this.isEditing = false
       } catch (error) {
-        console.error('Failed to update address:', error)
+        console.error('Failed to save address:', error)
         this.errorMessage =
-          'Failed to update address: ' + (error.response?.data?.message || error.message)
+          'Failed to save address: ' + (error.response?.data?.message || error.message)
       } finally {
         this.isLoading = false
       }
     },
 
-    confirmDeleteAddress() {
+    confirmDeleteAddress(addressId) {
+      this.selectedAddressId = addressId
       this.showDeleteConfirm = true
     },
 
@@ -256,24 +245,12 @@ export default {
       this.errorMessage = ''
 
       try {
-        // Create the DTO object with empty address
-        const updateData = {
-          username: this.userData.username,
-          email: this.userData.email,
-          phone: this.userData.phone,
-          address: '',
-        }
+        // Удаление адреса по ID
+        await api.delete(`/api/address/${this.selectedAddressId}`)
 
-        // Send the update with empty address to effectively delete it
-        await api.put('/api/profile/update', updateData)
+        // Удаляем из локального массива
+        this.addresses = this.addresses.filter((addr) => addr.id !== this.selectedAddressId)
 
-        // Clear local address data
-        this.address = {
-          street: '',
-          city: '',
-          zipCode: '',
-          country: '',
-        }
         this.successMessage = 'Address deleted successfully'
         this.showDeleteConfirm = false
       } catch (error) {
@@ -282,6 +259,7 @@ export default {
           'Failed to delete address: ' + (error.response?.data?.message || error.message)
       } finally {
         this.isLoading = false
+        this.selectedAddressId = null
       }
     },
   },
