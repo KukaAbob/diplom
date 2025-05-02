@@ -37,115 +37,109 @@
 </template>
 
 <script>
+import { ref, reactive, computed, onMounted } from 'vue'
 import api from '@/api/api'
 import { jwtDecode } from 'jwt-decode'
 
 export default {
-  data() {
-    return {
-      userData: null,
-      profileData: {
-        email: '',
-        phone: '',
-        username: '',
-        address: '', // Сохраняем адрес, но не будем его менять
-      },
-      isLoading: false,
-      errorMessage: '',
-      successMessage: '',
-    }
-  },
-  computed: {
-    // Получение userId из JWT токена
-    userId() {
+  name: 'DetailsView',
+  setup() {
+    const userData = ref(null)
+    const profileData = reactive({
+      email: '',
+      phone: '',
+      username: '',
+      address: '',
+    })
+    const isLoading = ref(false)
+    const errorMessage = ref('')
+    const successMessage = ref('')
+
+    const userId = computed(() => {
       try {
-        const token = localStorage.getItem('jwtToken') // или другое имя ключа, где хранится ваш JWT
+        const token = localStorage.getItem('jwtToken')
         if (!token) {
           console.error('JWT token not found in localStorage')
           return null
         }
-
-        const decodedToken = jwtDecode(token)
-        return decodedToken.id // Используем поле "id" из вашего payload
-      } catch (error) {
-        console.error('Failed to decode JWT token:', error)
+        const decoded = jwtDecode(token)
+        return decoded.id
+      } catch (err) {
+        console.error('Failed to decode JWT token:', err)
         return null
       }
-    },
-  },
-  mounted() {
-    this.loadUserData()
-  },
-  methods: {
-    async loadUserData() {
-      if (!this.userId) {
-        this.errorMessage = 'User ID not available. Please log in again.'
+    })
+
+    const loadUserData = async () => {
+      if (!userId.value) {
+        errorMessage.value = 'User ID not available. Please log in again.'
         return
       }
-
       try {
-        this.isLoading = true
+        isLoading.value = true
+        const resp = await api.get(`/api/profile/${userId.value}`)
+        userData.value = resp.data
 
-        // Загружаем данные профиля по ID из JWT токена
-        const response = await api.get(`/api/profile/${this.userId}`)
-        this.userData = response.data
-
-        // Заполняем profileData данными с сервера
-        this.profileData = {
-          email: this.userData.email || '',
-          phone: this.userData.phone || '',
-          username: this.userData.username || '',
-          address: this.userData.address || '', // Сохраняем адрес, но не будем его менять
-        }
-
-        console.log('Loaded user data:', this.profileData)
-      } catch (error) {
-        console.error('Failed to load user data:', error)
-        this.errorMessage = 'Failed to load user data: ' + (error.response?.data || error.message)
-
-        // Если ошибка связана с авторизацией, можно перенаправить на страницу входа
-        if (error.response?.status === 401) {
-          // this.$router.push('/login');
+        Object.assign(profileData, {
+          email: userData.value.email || '',
+          phone: userData.value.phone || '',
+          username: userData.value.username || '',
+          address: userData.value.address || '',
+        })
+      } catch (err) {
+        console.error('Failed to load user data:', err)
+        errorMessage.value =
+          'Failed to load user data: ' +
+          (err.response?.data || err.message)
+        if (err.response?.status === 401) {
+          // router.push('/login')
         }
       } finally {
-        this.isLoading = false
+        isLoading.value = false
       }
-    },
+    }
 
-    async saveChanges() {
-      this.isLoading = true
-      this.errorMessage = ''
-      this.successMessage = ''
+    const saveChanges = async () => {
+      isLoading.value = true
+      errorMessage.value = ''
+      successMessage.value = ''
 
       try {
-        console.log('Sending profile data:', this.profileData)
-
-        // Отправляем обновленные данные email и phone, сохраняя существующий адрес
         const updateData = {
-          email: this.profileData.email,
-          phone: this.profileData.phone,
-          username: this.profileData.username,
-          address: this.profileData.address, // Передаем существующий адрес
+          email: profileData.email,
+          phone: profileData.phone,
+          username: profileData.username,
+          address: profileData.address,
         }
-
-        // Отправляем данные на сервер
-        const response = await api.put('/api/profile/update', updateData)
-        console.log('Server response:', response.data)
-        this.successMessage = 'Profile updated successfully!'
-      } catch (error) {
-        console.error('Failed to update profile:', error)
-        if (error.response) {
-          console.error('Error response data:', error.response.data)
-          this.errorMessage = 'Server error: ' + (error.response.data || error.response.status)
-        } else if (error.request) {
-          this.errorMessage = 'No response from server. Check your connection.'
+        const resp = await api.put('/api/profile/update', updateData)
+        console.log('Server response:', resp.data)
+        successMessage.value = 'Profile updated successfully!'
+      } catch (err) {
+        console.error('Failed to update profile:', err)
+        if (err.response) {
+          errorMessage.value = 'Server error: ' + (err.response.data || err.response.status)
+        } else if (err.request) {
+          errorMessage.value = 'No response from server. Check your connection.'
         } else {
-          this.errorMessage = 'Request error: ' + error.message
+          errorMessage.value = 'Request error: ' + err.message
         }
       } finally {
-        this.isLoading = false
+        isLoading.value = false
       }
-    },
+    }
+
+    onMounted(loadUserData)
+
+    return {
+      userData,
+      profileData,
+      isLoading,
+      errorMessage,
+      successMessage,
+      userId,
+      loadUserData,
+      saveChanges,
+    }
   },
 }
 </script>
