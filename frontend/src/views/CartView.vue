@@ -17,10 +17,7 @@
             <div v-for="item in cart.items" :key="item.id" class="cart-item">
               <div class="item-image">
                 <!-- Используем base64 изображение, если доступно, иначе используем резервное изображение -->
-                <img 
-                  :src="getProductImage(item.productId)" 
-                  :alt="item.productName" 
-                />
+                <img :src="getProductImage(item.productId)" :alt="item.productName" />
               </div>
               <div class="item-details">
                 <h3>{{ item.productName }}</h3>
@@ -94,13 +91,13 @@ onMounted(async () => {
 function getEmailFromToken() {
   const token = localStorage.getItem('jwtToken')
   if (!token) return null
-  
+
   try {
     // Разбираем JWT токен (он состоит из трех частей, разделенных точками)
     const base64Url = token.split('.')[1]
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
     const payload = JSON.parse(window.atob(base64))
-    
+
     return payload.email
   } catch (error) {
     console.error('Ошибка при получении email из токена:', error)
@@ -112,33 +109,33 @@ function getEmailFromToken() {
 // Улучшенная функция получения изображения
 function getProductImage(productId) {
   const images = productImages[productId] || []
-  
+
   if (images.length > 0 && images[0]) {
     // Изображение должно уже быть в правильном формате благодаря обработке в loadProductImages
     return images[0]
   }
-  
+
   return defaultImagePath
 }
 
 async function loadCart() {
   loading.value = true
-  
+
   try {
     const email = getEmailFromToken()
     if (!email) {
       loading.value = false
       return
     }
-    
+
     const response = await api.get(`/api/cart?email=${email}`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('jwtToken')}`
-      }
+        Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
+      },
     })
-    
+
     cart.value = response.data
-    
+
     // Загрузка изображений для каждого товара в корзине
     if (cart.value && cart.value.items) {
       for (const item of cart.value.items) {
@@ -158,36 +155,37 @@ async function loadProductImages(productId) {
   try {
     const response = await api.get(`/api/images/all/${productId}`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('jwtToken')}`
-      }
+        Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
+      },
     })
-    
+
     // Добавляем лог для просмотра данных от сервера
     console.log(`Ответ сервера для изображений товара ${productId}:`, response.data)
-    
+
     if (response.data) {
       productImages[productId] = response.data
         .map((imageObj) => {
           // Более универсальная обработка разных форматов данных
-          const base64Data = typeof imageObj === 'object'
-            ? (imageObj.oid || imageObj.base64 || imageObj.image || imageObj)
-            : imageObj
-          
+          const base64Data =
+            typeof imageObj === 'object'
+              ? imageObj.oid || imageObj.base64 || imageObj.image || imageObj
+              : imageObj
+
           // Добавим дополнительный лог для отладки обработки каждого изображения
           console.log(`Обработка изображения для товара ${productId}:`, {
             isObject: typeof imageObj === 'object',
             originalData: imageObj,
             extractedData: base64Data,
-            hasPrefix: base64Data ? base64Data.startsWith('data:image') : false
+            hasPrefix: base64Data ? base64Data.startsWith('data:image') : false,
           })
-          
+
           if (!base64Data) return null
           return base64Data.startsWith('data:image')
             ? base64Data
             : `data:image/jpeg;base64,${base64Data}`
         })
         .filter(Boolean) // Фильтрация null/undefined значений
-      
+
       // Добавим лог результата обработки
       console.log(`Обработанные изображения для товара ${productId}:`, productImages[productId])
     }
@@ -199,14 +197,14 @@ async function loadProductImages(productId) {
 
 async function removeFromCart(itemId) {
   loading.value = true
-  
+
   try {
     await api.delete(`/api/cart/delete/${itemId}`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('jwtToken')}`
-      }
+        Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
+      },
     })
-    
+
     // Обновляем корзину после удаления
     await loadCart()
   } catch (error) {
@@ -218,15 +216,16 @@ async function removeFromCart(itemId) {
 
 async function updateQuantity(item, change) {
   try {
-    await api.put(`/api/cart/update/${item.id}`, 
+    await api.put(
+      `/api/cart/update/${item.id}`,
       { quantity: item.quantity + change },
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('jwtToken')}`
-        }
-      }
+          Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
+        },
+      },
     )
-    
+
     // Обновляем корзину после изменений
     await loadCart()
   } catch (error) {
@@ -243,7 +242,7 @@ async function decreaseQuantity(item) {
     await removeFromCart(item.id)
     return
   }
-  
+
   await updateQuantity(item, -1)
 }
 
@@ -258,7 +257,7 @@ async function addToWishlist(item) {
 
     const email = getEmailFromToken()
     if (!email) return
-    
+
     await api.post(
       '/api/wishlist/add',
       {
@@ -296,7 +295,7 @@ function goBack() {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  font-family: Arial, sans-serif;
+  font-family: 'Tinos', serif;
 }
 
 .back-button {

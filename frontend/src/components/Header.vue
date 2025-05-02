@@ -21,42 +21,134 @@
         <!-- Кнопки справа -->
         <div class="top-buttons">
           <RouterLink to="/wishlist" class="wishlist-button">
-            <img src="@/assets/img/icons/logo1.svg" alt="Избранное" class="icon" />
+            <img src="@/assets/img/icons/wishlist.svg" alt="Избранное" class="icon" />
           </RouterLink>
           <RouterLink to="/cart" class="cart-button">
-            <img src="@/assets/img/icons/logo2.svg" alt="Корзина" class="icon" />
+            <img src="@/assets/img/icons/cart.svg" alt="Корзина" class="icon" />
           </RouterLink>
         </div>
 
         <!-- Поисковое поле -->
-        <div class="search-container">
-          <input type="text" placeholder="Поиск по товару, коллекции..." class="search-input" />
-          <button class="search-button">
+        <form @submit.prevent="submitSearch" class="search-container">
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Поиск по товару, коллекции..."
+            class="search-input"
+          />
+          <button type="submit" class="search-button">
             <img src="@/assets/img/icons/logo2.svg" alt="Поиск" class="search-icon" />
           </button>
-        </div>
+        </form>
 
         <!-- Категории -->
         <div class="categories">
-          <h2 class="category-header">НОВИНКИ</h2>
-
-          <RouterLink to="/catalog">
-            <h2 class="category-header">ОДЕЖДА</h2>
-          </RouterLink>
+          <h2 class="category-header">ОДЕЖДА</h2>
           <ul class="category-list">
-            <li class="category-item">ДЖИНСЫ</li>
-            <li class="category-item">БРЮКИ</li>
-            <li class="category-item">ТОЛСТОВКИ</li>
-            <li class="category-item">КУРТКИ</li>
-            <li class="category-item">ФУТБОЛКИ</li>
-            <li class="category-item">ПОЛО</li>
-            <li class="category-item">ШОРТЫ</li>
-            <li class="category-item">ОБУВЬ</li>
+            <li class="category-item">
+              <router-link
+                :to="{ path: '/general', query: { gender: 'all', category: 'jeans' } }"
+                class="category-link"
+                @click="handleMenuItemClick"
+              >
+                ДЖИНСЫ
+              </router-link>
+            </li>
+            <li class="category-item">
+              <router-link
+                :to="{ path: '/general', query: { gender: 'all', category: 'pants' } }"
+                class="category-link"
+                @click="handleMenuItemClick"
+              >
+                БРЮКИ
+              </router-link>
+            </li>
+            <li class="category-item">
+              <router-link
+                :to="{ path: '/general', query: { gender: 'all', category: 'hoodies' } }"
+                class="category-link"
+                @click="handleMenuItemClick"
+              >
+                ТОЛСТОВКИ
+              </router-link>
+            </li>
+            <li class="category-item">
+              <router-link
+                :to="{ path: '/general', query: { gender: 'all', category: 'jackets' } }"
+                class="category-link"
+                @click="handleMenuItemClick"
+              >
+                КУРТКИ
+              </router-link>
+            </li>
+            <li class="category-item">
+              <router-link
+                :to="{ path: '/general', query: { gender: 'all', category: 'tshirts' } }"
+                class="category-link"
+                @click="handleMenuItemClick"
+              >
+                ФУТБОЛКИ
+              </router-link>
+            </li>
+            <li class="category-item">
+              <router-link
+                :to="{ path: '/general', query: { gender: 'all', category: 'polo' } }"
+                class="category-link"
+                @click="handleMenuItemClick"
+              >
+                ПОЛО
+              </router-link>
+            </li>
+            <li class="category-item">
+              <router-link
+                :to="{ path: '/general', query: { gender: 'all', category: 'shorts' } }"
+                class="category-link"
+                @click="handleMenuItemClick"
+              >
+                ШОРТЫ
+              </router-link>
+            </li>
           </ul>
-          <h2 class="category-header">СПОРТ</h2>
-          <h2 class="category-header">ОБУВЬ</h2>
-          <h2 class="category-header">АКСЕССУАРЫ</h2>
-          <h2 class="category-header">СУМКИ</h2>
+
+          <h2 class="category-header">
+            <router-link
+              :to="{ path: '/general', query: { gender: 'all', category: 'sport' } }"
+              class="category-header-link"
+              @click="handleMenuItemClick"
+            >
+              СПОРТ
+            </router-link>
+          </h2>
+
+          <h2 class="category-header">
+            <router-link
+              :to="{ path: '/general', query: { gender: 'all', category: 'shoes' } }"
+              class="category-header-link"
+              @click="handleMenuItemClick"
+            >
+              ОБУВЬ
+            </router-link>
+          </h2>
+
+          <h2 class="category-header">
+            <router-link
+              :to="{ path: '/general', query: { gender: 'all', category: 'accessories' } }"
+              class="category-header-link"
+              @click="handleMenuItemClick"
+            >
+              АКСЕССУАРЫ
+            </router-link>
+          </h2>
+
+          <h2 class="category-header">
+            <router-link
+              :to="{ path: '/general', query: { gender: 'all', category: 'bags' } }"
+              class="category-header-link"
+              @click="handleMenuItemClick"
+            >
+              СУМКИ
+            </router-link>
+          </h2>
         </div>
       </div>
 
@@ -95,7 +187,7 @@
             <!-- Профиль меню содержимое (оставлено без изменений) -->
             <div class="profile-header">
               <div class="greeting">
-                <h3>Hello</h3>
+                <h3>Здравствуйте,</h3>
                 <p class="user-email">{{ userEmail }}</p>
               </div>
               <button class="close-btn" @click.stop="isProfileMenuOpen = false">×</button>
@@ -103,17 +195,17 @@
             <div class="profile-menu-items">
               <RouterLink to="/profile/purchases" class="profile-menu-item">
                 <div class="menu-icon">
-                  <img src="@/assets/img/icons/profile.svg" alt="Purchases" />
+                  <img src="@/assets/img/icons/folder-minus.svg" alt="Purchases" />
                 </div>
-                <span>My purchases</span>
+                <span>Мои покупки</span>
                 <span class="arrow">›</span>
               </RouterLink>
 
               <RouterLink to="/profile/returns" class="profile-menu-item">
                 <div class="menu-icon">
-                  <img src="@/assets/img/icons/profile.svg" alt="Returns" />
+                  <img src="@/assets/img/icons/undo-alt.svg" alt="Returns" />
                 </div>
-                <span>Returns</span>
+                <span>Возвраты</span>
                 <span class="arrow">›</span>
               </RouterLink>
 
@@ -121,45 +213,45 @@
                 <div class="menu-icon">
                   <img src="@/assets/img/icons/profile.svg" alt="Personal details" />
                 </div>
-                <span>Personal details</span>
+                <span>Персональные данные</span>
                 <span class="arrow">›</span>
               </RouterLink>
 
               <RouterLink to="/profile/addresses" class="profile-menu-item">
                 <div class="menu-icon">
-                  <img src="@/assets/img/icons/profile.svg" alt="Addresses" />
+                  <img src="@/assets/img/icons/home.svg" alt="Addresses" />
                 </div>
-                <span>Addresses</span>
+                <span>Адресы доставки</span>
                 <span class="arrow">›</span>
               </RouterLink>
 
               <RouterLink to="/profile/payment" class="profile-menu-item">
                 <div class="menu-icon">
-                  <img src="@/assets/img/icons/profile.svg" alt="Payment methods" />
+                  <img src="@/assets/img/icons/credit-card.svg" alt="Payment methods" />
                 </div>
-                <span>Payment methods</span>
+                <span>Платежные методы</span>
                 <span class="arrow">›</span>
               </RouterLink>
 
               <RouterLink to="/profile/newsletter" class="profile-menu-item">
                 <div class="menu-icon">
-                  <img src="@/assets/img/icons/profile.svg" alt="Newsletter" />
+                  <img src="@/assets/img/icons/envelope.svg" alt="Newsletter" />
                 </div>
-                <span>Newsletter</span>
+                <span>Почтовая рассылка</span>
                 <span class="arrow">›</span>
               </RouterLink>
 
               <RouterLink to="/profile/service" class="profile-menu-item">
                 <div class="menu-icon">
-                  <img src="@/assets/img/icons/profile.svg" alt="Customer service" />
+                  <img src="@/assets/img/icons/interrogation.svg" alt="Customer service" />
                 </div>
-                <span>Customer service</span>
+                <span>Обслуживание</span>
                 <span class="arrow">›</span>
               </RouterLink>
 
               <RouterLink to="/profile/privacy" class="profile-menu-item">
                 <div class="menu-icon">
-                  <img src="@/assets/img/icons/profile.svg" alt="Политика конфиденциальности" />
+                  <img src="@/assets/img/icons/exclamation.svg" alt="Политика конфиденциальности" />
                 </div>
                 <span>Политика конфиденциальности</span>
                 <span class="arrow">›</span>
@@ -197,6 +289,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
+
 const router = useRouter()
 const isAuthenticated = ref(false)
 const isMenuOpen = ref(false)
@@ -207,6 +300,9 @@ let closeTimeout = null
 
 // Добавляем переменную для управления состоянием выпадающего меню
 const isDropdownMenuOpen = ref(false)
+
+// Добавляем переменную для поисковой строки
+const searchQuery = ref('')
 
 // Функция для декодирования JWT токена
 function parseJwt(token) {
@@ -315,6 +411,29 @@ function toggleDropdownMenu() {
     document.body.style.overflow = 'hidden'
   } else {
     document.body.style.overflow = 'auto'
+  }
+}
+
+function handleMenuItemClick() {
+  // Закрыть меню при клике на любой элемент меню
+  closeDropdownMenu()
+}
+
+function closeDropdownMenu() {
+  if (isDropdownMenuOpen.value) {
+    isDropdownMenuOpen.value = false
+    document.body.style.overflow = 'auto'
+  }
+}
+
+// Добавляем функцию для обработки отправки формы поиска
+function submitSearch(event) {
+  if (searchQuery.value.trim()) {
+    // Перенаправляем на страницу результатов поиска с указанным запросом
+    router.push({
+      path: '/search',
+      query: { q: searchQuery.value.trim() },
+    })
   }
 }
 </script>
@@ -499,12 +618,6 @@ button {
   color: #000;
   padding: 2px 5px;
   margin-left: 5px;
-}
-
-.stradilooks {
-  display: flex;
-  align-items: center;
-  margin-top: 20px;
 }
 
 .phone-icon {
@@ -721,5 +834,13 @@ button {
   .search {
     width: 150px;
   }
+}
+
+.category-link,
+.category-header-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  width: 100%;
 }
 </style>

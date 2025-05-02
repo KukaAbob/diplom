@@ -51,7 +51,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Tinos', serif;
   font-size: 14px;
   color: #333;
 }

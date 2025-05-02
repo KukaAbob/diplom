@@ -2,8 +2,14 @@
   <div class="content">
     <div class="banner-new-items">
       <div class="banner-title">
-        <h2>НОВИНКИ</h2>
-        <h4>Посмотреть все</h4>
+        <router-link
+          :to="{ path: '/general', query: { gender: 'all', category: null, collection: 'new' } }"
+          class="category-link"
+          @click="handleMenuItemClick"
+        >
+          <h2>НОВИНКИ</h2>
+          <h4>Посмотреть все</h4>
+        </router-link>
       </div>
       <div class="banner-img">
         <img src="@/assets/img/banner.jpg" alt="" />
@@ -16,24 +22,54 @@
       <div class="categories">
         <ul class="category-items">
           <li>
-            <img src="@/assets/img/category-item1.png" alt="" />
-            <h3>Верхняя одежда</h3>
+            <router-link
+              :to="{ path: '/general', query: { gender: 'all', category: 'coat' } }"
+              class="category-link"
+              @click="handleMenuItemClick"
+            >
+              <img src="@/assets/img/category-item1.png" alt="" />
+              <h3>Пальто</h3>
+            </router-link>
           </li>
           <li>
-            <img src="@/assets/img/category-item2.png" alt="" />
-            <h3>Обувь</h3>
+            <router-link
+              :to="{ path: '/general', query: { gender: 'all', category: 'shoes' } }"
+              class="category-link"
+              @click="handleMenuItemClick"
+            >
+              <img src="@/assets/img/category-item2.png" alt="" />
+              <h3>Обувь</h3>
+            </router-link>
           </li>
           <li>
-            <img src="@/assets/img/category-item3.png" alt="" />
-            <h3>Футболки</h3>
+            <router-link
+              :to="{ path: '/general', query: { gender: 'all', category: 'tshirts' } }"
+              class="category-link"
+              @click="handleMenuItemClick"
+            >
+              <img src="@/assets/img/category-item3.png" alt="" />
+              <h3>Футболки</h3>
+            </router-link>
           </li>
           <li>
-            <img src="@/assets/img/category-item4.png" alt="" />
-            <h3>Аксессуары</h3>
+            <router-link
+              :to="{ path: '/general', query: { gender: 'all', category: 'accessories' } }"
+              class="category-link"
+              @click="handleMenuItemClick"
+            >
+              <img src="@/assets/img/category-item4.png" alt="" />
+              <h3>Аксессуары</h3>
+            </router-link>
           </li>
           <li>
-            <img src="@/assets/img/category-item5.png" alt="" />
-            <h3>Джинсы</h3>
+            <router-link
+              :to="{ path: '/general', query: { gender: 'all', category: 'jeans' } }"
+              class="category-link"
+              @click="handleMenuItemClick"
+            >
+              <img src="@/assets/img/category-item5.png" alt="" />
+              <h3>Джинсы</h3>
+            </router-link>
           </li>
         </ul>
       </div>
@@ -41,15 +77,30 @@
     <div class="collections">
       <div class="collections-items collection-1">
         <div class="collections-title">
-          <h2>Коллекция - 1</h2>
-          <br />
-          <p>Посмотреть все</p>
+          <router-link
+            :to="{ path: '/general', query: { gender: 'all', category: null, collection: 'stwd' } }"
+            class="category-link"
+            @click="handleMenuItemClick"
+          >
+            <h2>STWD</h2>
+            <br />
+            <p>Посмотреть все</p>
+          </router-link>
         </div>
       </div>
       <div class="collections-items collection-2">
         <div class="collections-title">
-          <h2>Коллекция - 2</h2>
-          <p>Посмотреть все</p>
+          <router-link
+            :to="{
+              path: '/general',
+              query: { gender: 'all', category: null, collection: 'pacific' },
+            }"
+            class="category-link"
+            @click="handleMenuItemClick"
+          >
+            <h2>Pacific Republic</h2>
+            <p>Посмотреть все</p>
+          </router-link>
         </div>
       </div>
     </div>
@@ -92,7 +143,7 @@
 }
 
 .category-title {
-  font-family: 'Martian Mono', monospace;
+  font-family: 'Oswald', sans-serif;
   text-align: center;
 }
 
@@ -111,8 +162,17 @@
 
 .category-items li h3 {
   text-align: center;
-  font-family:
-    'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-family: 'Tinos', serif;
+}
+
+.category-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.category-link:hover,
+.category-link:focus {
+  text-decoration: none; /* на хувере тоже без подчёркивания */
 }
 
 .category-items img {
@@ -170,15 +230,17 @@
 }
 
 .collections-title h2 {
-  font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+  font-family: 'Oswald', sans-serif;
   font-size: 45px;
   margin: 0;
   cursor: pointer;
+  color: #333333;
 }
 
 .collections-title p {
-  font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+  font-family: 'Oswald', sans-serif;
   font-size: 20px;
   cursor: pointer;
+  color: black;
 }
 </style>

@@ -2,7 +2,7 @@
   <div class="header">
     <RouterLink to="/">
       <button class="close-btn">
-        <img src="@/assets/img/icons/logo2.svg" alt="Закрыть" />
+        <img src="@/assets/img/icons/arrow-left.svg" alt="Закрыть" />
       </button>
     </RouterLink>
     <img src="@/assets/img/logo.png" alt="Логотип" class="logo" />
@@ -25,10 +25,10 @@
             ЗАРЕГИСТРИРУЙТЕСЬ
           </p>
           <ul class="benefits">
-            <li><img src="@/assets/img/icons/logo4.svg" alt="" /> Отследите свои заказы</li>
+            <li><img src="@/assets/img/icons/cart.svg" alt="" /> Отследите свои заказы</li>
             <li>
-              <img src="@/assets/img/icons/logo1.svg" alt="" /> Сохраните свои данные по доставке и
-              оплате, чтобы сэкономить время при следующих покупках
+              <img src="@/assets/img/icons/credit-card.svg" alt="" /> Сохраните свои данные по
+              доставке и оплате, чтобы сэкономить время при следующих покупках
             </li>
           </ul>
           <RouterLink to="/registration" class="reg-button">
@@ -93,8 +93,17 @@
   align-items: center;
   padding: 20px;
 }
+
+.close-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
 .close-btn img {
-  width: 20px;
+  width: 30px;
 }
 .logo {
   width: 150px;

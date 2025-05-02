@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bazarweb.bazarweb.dto.CartDTO;
 import com.bazarweb.bazarweb.dto.CartItemDTO;
 import com.bazarweb.bazarweb.dto.Requests.Cart.AddToCartRequest;
-import com.bazarweb.bazarweb.dto.Requests.Cart.ClearCartRequest;
 import com.bazarweb.bazarweb.dto.Requests.Cart.UpdateCartRequest;
 import com.bazarweb.bazarweb.model.Cart.Cart;
 import com.bazarweb.bazarweb.service.Cart.CartService;
@@ -63,17 +62,12 @@ public class CartController {
         cartService.removeCartItem(id);
         return ResponseEntity.ok("Товар удален из корзины");
     }
-     
-    @PostMapping("/clear") 
-    public ResponseEntity<CartDTO> clearCart(@RequestBody ClearCartRequest request) { 
-        Cart cart = cartService.clearCart(request.getEmail()); 
-        return ResponseEntity.ok(toDTO(cart)); 
-    }
 
-    // @PutMapping("/update/{id}")
-    // public ResponseEntity<CartDTO> updateCartItem(@PathVariable int id, @RequestBody UpdateCartRequest request){
-    //     CartDTO updatedCart = cartService.updateCartItem(id, request.getQuantity());
-    //     return ResponseEntity.ok(updatedCart);
-    // }
+    @PutMapping("/update/{id}")
+    public ResponseEntity<CartDTO> updateCartItem(@PathVariable int id, @RequestBody UpdateCartRequest request){
+        CartDTO updatedCart = cartService.updateCartItem(id, request.getQuantity());
+        return ResponseEntity.ok(updatedCart);
+    }
      
+    
 }

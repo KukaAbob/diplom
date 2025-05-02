@@ -13,9 +13,9 @@ import PaymentView from '@/views/profile/PaymentView.vue'
 import NewsletterView from '@/views/profile/NewsletterView.vue'
 import ServiceView from '@/views/profile/ServiceView.vue'
 import PrivacyView from '@/views/profile/PrivacyView.vue'
-import Wishlist from '@/views/Wishlist.vue'
-import ManCatalogView from '@/views/ManCatalogView.vue'
-import WomanCatalogView from '@/views/WomanCatalogView.vue'
+import WishlistView from '@/views/WishlistView.vue'
+import GeneralCatalogView from '@/views/GeneralCatalogView.vue'
+import SearchResultsPageView from '@/views/SearchResultsPageView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -68,17 +68,18 @@ const router = createRouter({
     {
       path: '/wishlist',
       name: 'wishlist',
-      component: Wishlist,
+      component: WishlistView,
+      meta: { hideHeaderFooter: true },
     },
     {
-      path: '/man',
-      name: 'man',
-      component: ManCatalogView,
+      path: '/general',
+      name: 'general',
+      component: GeneralCatalogView,
     },
     {
-      path: '/woman',
-      name: 'woman',
-      component: WomanCatalogView,
+      path: '/search',
+      name: 'search',
+      component: SearchResultsPageView,
     },
   ],
 })

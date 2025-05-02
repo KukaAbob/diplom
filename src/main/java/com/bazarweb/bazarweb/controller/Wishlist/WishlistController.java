@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bazarweb.bazarweb.dto.WishlistDTO;
 import com.bazarweb.bazarweb.dto.WishlistItemDTO;
 import com.bazarweb.bazarweb.dto.Requests.Wishlist.AddToWishlistRequest;
-import com.bazarweb.bazarweb.dto.Requests.Wishlist.ClearWishlistRequest;
 import com.bazarweb.bazarweb.dto.Requests.Wishlist.MoveToCartRequest;
 import com.bazarweb.bazarweb.dto.Requests.Wishlist.RemoveFromWishlistRequest;
 import com.bazarweb.bazarweb.model.Wishlist.Wishlist;
@@ -61,12 +60,6 @@ public class WishlistController {
     public ResponseEntity<String> deleteFromWishlist(@RequestBody RemoveFromWishlistRequest request) {
         wishlistService.removeWishlistItem(request.getEmail(), request.getProductId());
         return ResponseEntity.ok("Товар удален из списка желаний");
-    }
-
-    @PostMapping("/clear")
-    public ResponseEntity<WishlistDTO> clearWishlist(@RequestBody ClearWishlistRequest request) {
-        Wishlist wishlist = wishlistService.clearWishlist(request.getEmail());
-        return ResponseEntity.ok(toDTO(wishlist));
     }
 
     @PostMapping("/move-to-cart")

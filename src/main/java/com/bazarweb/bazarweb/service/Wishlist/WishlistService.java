@@ -69,13 +69,6 @@ public class WishlistService {
         wishlist.getItems().removeIf(item -> item.getProduct().getId() == productId);
         wishlistRepository.save(wishlist);
     }
-    
-    public Wishlist clearWishlist(String email) {
-        Wishlist wishlist = findOrCreateWishlistByEmail(email);
-        // Удаляем все элементы из списка желаний
-        wishlist.getItems().clear();
-        return wishlistRepository.save(wishlist);
-    }
 
     public List<WishlistItems> getWishlistItems(String email) {
         Wishlist wishlist = findOrCreateWishlistByEmail(email);
