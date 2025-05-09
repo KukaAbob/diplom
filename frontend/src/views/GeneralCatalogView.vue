@@ -270,7 +270,7 @@
             :alt="product.name"
             @click="selectProduct(product)"
           />
-          <button class="favorite-btn">
+          <button class="favorite-btn" @click="toggleWishlist(product.id, $event)">
             <svg
               width="24"
               height="24"
@@ -282,6 +282,8 @@
                 d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
                 stroke="black"
                 fill="none"
+                :fill="isInWishlist(product.id) ? 'red' : 'none'"
+                :stroke="isInWishlist(product.id) ? 'red' : 'black'"
               />
             </svg>
           </button>
@@ -334,7 +336,30 @@
 
           <!-- Информация о товаре справа -->
           <div class="product-info-container">
-            <h2 class="product-title">{{ selectedProduct.name }}</h2>
+            <div class="product-header">
+              <h2 class="product-title">{{ selectedProduct.name }}</h2>
+              <button
+                class="modal-favorite-btn"
+                @click="toggleWishlist(selectedProduct.id)"
+                v-if="selectedProduct"
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                    stroke="black"
+                    fill="none"
+                    :fill="selectedProduct && isInWishlist(selectedProduct.id) ? 'red' : 'none'"
+                    :stroke="selectedProduct && isInWishlist(selectedProduct.id) ? 'red' : 'black'"
+                  />
+                </svg>
+              </button>
+            </div>
             <p class="product-modal-price">{{ selectedProduct.price }} KZT</p>
 
             <div class="product-collection" v-if="selectedProduct.collection">
@@ -519,17 +544,22 @@
   </div>
 </template>
 
+<!-- Add to the script setup section -->
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/api/api'
-import { jwtDecode } from 'jwt-decode' // Make sure to install this package if not already installed
+import { jwtDecode } from 'jwt-decode'
 
 const route = useRoute()
 const router = useRouter()
 
 const cartQuantity = ref(1)
 const addToCartStatus = ref({ loading: false, success: false, error: null })
+
+// Wishlist state
+const wishlistItems = ref([])
+const wishlistStatus = ref({ loading: false, success: false, error: null })
 
 // Состояние списка товаров
 const products = ref([])
@@ -546,6 +576,76 @@ const getUserEmailFromToken = () => {
   } catch (error) {
     console.error('Error decoding JWT token:', error)
     return null
+  }
+}
+
+// Check if a product is in wishlist
+const isInWishlist = (productId) => {
+  return wishlistItems.value.includes(productId)
+}
+
+// Toggle product in wishlist
+// Toggle product in wishlist
+const toggleWishlist = async (productId, event) => {
+  if (event) {
+    event.stopPropagation() // Prevent opening product details when clicking heart
+  }
+
+  const email = getUserEmailFromToken()
+  if (!email) {
+    // Redirect to login if no email/token found
+    router.push('/login?redirect=' + encodeURIComponent(route.fullPath))
+    return
+  }
+
+  try {
+    wishlistStatus.value.loading = true
+    wishlistStatus.value.error = null
+
+    // Проверяем, есть ли товар уже в списке желаний
+    const inWishlist = isInWishlist(productId)
+
+    if (inWishlist) {
+      // Если товар уже в списке желаний, удаляем его
+      await api.post('/api/wishlist/delete', {
+        email: email,
+        productId: productId,
+      })
+      // Удаляем из локального списка
+      wishlistItems.value = wishlistItems.value.filter((id) => id !== productId)
+    } else {
+      // Если товара нет в списке желаний, добавляем его
+      await api.post('/api/wishlist/add', {
+        email: email,
+        productId: productId,
+      })
+      // Добавляем в локальный список
+      wishlistItems.value.push(productId)
+    }
+
+    wishlistStatus.value.success = true
+    // Reset after 2 seconds
+    setTimeout(() => {
+      wishlistStatus.value.success = false
+    }, 2000)
+  } catch (error) {
+    console.error('Ошибка обновления списка желаний:', error)
+    wishlistStatus.value.error = error.response?.data?.message || 'Ошибка обновления списка желаний'
+  } finally {
+    wishlistStatus.value.loading = false
+  }
+}
+
+// Fetch user's wishlist
+const fetchWishlist = async () => {
+  const email = getUserEmailFromToken()
+  if (!email) return
+
+  try {
+    const response = await api.get(`/api/wishlist/get?email=${encodeURIComponent(email)}`)
+    wishlistItems.value = response.data.map((item) => item.productId)
+  } catch (error) {
+    console.error('Ошибка загрузки списка желаний:', error)
   }
 }
 
@@ -824,6 +924,7 @@ const toggleAccordion = (section) => {
 // Инициализация при монтировании компонента
 onMounted(() => {
   fetchProducts()
+  fetchWishlist() // Fetch user's wishlist on page load
 
   // Если есть параметры в URL, устанавливаем соответствующие фильтры
   if (route.query.category) {
@@ -881,16 +982,74 @@ onMounted(() => {
   position: absolute;
   top: 10px;
   right: 10px;
-  background: white;
+  background: rgba(255, 255, 255, 0.8);
   border: none;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+  z-index: 2;
+}
+
+.favorite-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.2);
+  }
+  50% {
+    transform: scale(1);
+  }
+  75% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.favorite-btn svg {
+  transition: all 0.3s ease;
+}
+
+.favorite-btn:active svg {
+  animation: heartbeat 0.6s ease-in-out;
+}
+
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.modal-favorite-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.modal-favorite-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Make sure product title has proper spacing */
+.product-title {
+  margin-right: 15px;
+  flex: 1;
 }
 
 .product-info {

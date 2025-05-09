@@ -16,6 +16,7 @@ import PrivacyView from '@/views/profile/PrivacyView.vue'
 import WishlistView from '@/views/WishlistView.vue'
 import GeneralCatalogView from '@/views/GeneralCatalogView.vue'
 import SearchResultsPageView from '@/views/SearchResultsPageView.vue'
+import CheckoutView from '@/views/CheckoutView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -80,6 +81,12 @@ const router = createRouter({
       path: '/search',
       name: 'search',
       component: SearchResultsPageView,
+    },
+    {
+      path: '/checkout',
+      name: 'Checkout',
+      component: CheckoutView,
+      meta: { hideHeaderFooter: true },
     },
   ],
 })

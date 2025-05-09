@@ -1,6 +1,7 @@
 package com.bazarweb.bazarweb.service.User;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -71,5 +72,9 @@ public class PaymentService {
 
     public Payment findById(int id){
         return paymentRepository.findById(id);
+    }
+
+    public List<Payment> findByUserId(int id){
+        return paymentRepository.findByUserId(id);
     }
 }

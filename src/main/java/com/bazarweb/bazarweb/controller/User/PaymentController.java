@@ -10,6 +10,10 @@ import com.bazarweb.bazarweb.service.User.PaymentService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,6 +34,15 @@ public class PaymentController {
     public ResponseEntity<PaymentDto> getPayment(@PathVariable int id){
         Payment payment = paymentService.findById(id);
         return ResponseEntity.ok(convertToDto(payment));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<PaymentDto>> getPaymentByUserId(@PathVariable int userId){
+        List<Payment> payments = paymentService.findByUserId(userId);
+        List<PaymentDto> paymentDtos = payments.stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(paymentDtos);
     }
 
     @PostMapping("/create")

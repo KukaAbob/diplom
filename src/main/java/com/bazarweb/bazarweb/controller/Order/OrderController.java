@@ -31,34 +31,18 @@ import lombok.RequiredArgsConstructor;
 public class OrderController {
 
     private final OrderService orderService;
-    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     @PostMapping("/create")
-    public ResponseEntity<Order> createOrder(@RequestBody OrderRequestDto request) {
-        // Логируем полученные данные
-        logger.info("Received order creation request: username={}, cardNumber={}", request.getUsername(), request.getCardNumber());
-    
+    public ResponseEntity<Order> createOrder(@RequestBody OrderDTO request) {
         try {            
             Order order = orderService.createUserOrder(
-                    request.getUsername(),
-                    request.getCardNumber()
+                request.getId(),
+                request.getDate(),
+                request.getStatus(),
+                request.getTotal()
             );
-            
-            // Логируем успешное создание заказа
-            logger.info("Order successfully created for username={}: Order ID={}", request.getUsername(), order.getId());
-            
-            // Выводим информацию о заказе в консоль
-            logger.info("Created Order: {}", order);
-    
             return ResponseEntity.status(HttpStatus.CREATED).body(order);
         } catch (IllegalArgumentException | EmptyCartException e) {
-            // Логируем ошибку
-            logger.error("Failed to create order for username={}. Reason: {}", request.getUsername(), e.getMessage());
-            e.printStackTrace();
-    
-            // Выводим ошибку в консоль
-            logger.error("Error details: {}", e.getMessage());
-    
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }

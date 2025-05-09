@@ -1,5 +1,7 @@
 package com.bazarweb.bazarweb.service.User;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.bazarweb.bazarweb.model.User.Address;
@@ -38,6 +40,10 @@ public class AddressService {
 
     public Address findById(int id){
         return addressRepository.findById(id);
+    }
+
+    public List<Address> findByUserId(int id){
+        return addressRepository.findByUserId(id);
     }
     
 }

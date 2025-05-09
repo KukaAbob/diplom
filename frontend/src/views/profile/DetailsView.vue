@@ -88,9 +88,7 @@ export default {
         })
       } catch (err) {
         console.error('Failed to load user data:', err)
-        errorMessage.value =
-          'Failed to load user data: ' +
-          (err.response?.data || err.message)
+        errorMessage.value = 'Failed to load user data: ' + (err.response?.data || err.message)
         if (err.response?.status === 401) {
           // router.push('/login')
         }

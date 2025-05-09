@@ -44,7 +44,4 @@ public class Order {
 
     @Column(name = "executed", nullable = false)
     private boolean executed;
-
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Bill bill;
 }

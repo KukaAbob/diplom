@@ -4,7 +4,6 @@ import com.bazarweb.bazarweb.dto.OrderDTO;
 import com.bazarweb.bazarweb.enums.OrderStatus;
 import com.bazarweb.bazarweb.exception.EmptyCartException;
 import com.bazarweb.bazarweb.model.Cart.Cart;
-import com.bazarweb.bazarweb.model.Order.Bill;
 import com.bazarweb.bazarweb.model.Order.Order;
 import com.bazarweb.bazarweb.model.Order.OrderItem;
 import com.bazarweb.bazarweb.model.User.User;
@@ -18,10 +17,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -73,8 +72,8 @@ public class OrderService {
         }
     }
 
-    public Order createUserOrder(String username, String cardNumber) {
-        User user = userRepository.findByUsername(username)
+    public Order createUserOrder(int id, LocalDateTime date, OrderStatus status, BigDecimal total) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         Cart cart = cartRepository.findByUser(user)
@@ -85,8 +84,6 @@ public class OrderService {
         }
 
         Order order = createNewOrder(user, cart);
-        Bill bill = createBill(order, cardNumber);
-        order.setBill(bill);
         orderRepository.save(order);
 
         fillOrderItems(cart, order);
@@ -109,17 +106,6 @@ public class OrderService {
                 .status(OrderStatus.IN_PROGRESS)
                 .total(cart.getTotalPrice())
                 .orderItems(null) // Items will be filled later
-                .build();
-    }
-
-    private Bill createBill(Order order, String cardNumber) {
-        return Bill.builder()
-                .order(order)
-                .number(new Random().nextInt(999999999))
-                .total(order.getTotal())
-                .payed(true)
-                .ccNumber(cardNumber)
-                .date(order.getDate())
                 .build();
     }
 

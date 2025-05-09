@@ -1,5 +1,9 @@
 package com.bazarweb.bazarweb.controller.User;
 
+import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bazarweb.bazarweb.dto.AddressDto;
+import com.bazarweb.bazarweb.dto.PaymentDto;
 import com.bazarweb.bazarweb.model.User.Address;
 import com.bazarweb.bazarweb.service.User.AddressService;
 
@@ -30,6 +35,15 @@ public class AddressController {
     public ResponseEntity<AddressDto> getAddress(@PathVariable int id) {
         Address address = addressService.findById(id);
         return ResponseEntity.ok(convertToDto(address));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<AddressDto>> getAddressByUserId(@PathVariable int userId){
+        List<Address> addresses = addressService.findByUserId(userId);
+        List<AddressDto> addressDtos = addresses.stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(addressDtos);
     }
     
     @PostMapping("/create")
