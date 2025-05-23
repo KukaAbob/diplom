@@ -16,7 +16,7 @@ services:
   db:
     image: postgres:14-alpine
     ports:
-      - "4567:5432"
+      - "5432:5432"
     environment:
       - POSTGRES_PASSWORD=123
       - POSTGRES_USER=postgres
@@ -31,7 +31,7 @@ services:
       dockerfile: dockerfile
       target: production-stage
     ports:
-      - "70:70"
+      - "3000:3000"
     depends_on:
       - app
 
