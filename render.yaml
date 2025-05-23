@@ -41,9 +41,6 @@ services:
     name: postgres
     plan: starter
     region: oregon
-    databaseName: postgres
-    databaseUser: postgres
-    ipAllowList: []
 
 # Дополнительные диски для статических файлов (если нужно)
 # disks:
