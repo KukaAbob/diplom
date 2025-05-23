@@ -17,6 +17,8 @@ import WishlistView from '@/views/WishlistView.vue'
 import GeneralCatalogView from '@/views/GeneralCatalogView.vue'
 import SearchResultsPageView from '@/views/SearchResultsPageView.vue'
 import CheckoutView from '@/views/CheckoutView.vue'
+import OrderConfirmation from '@/views/OrderConfirmation.vue'
+import ImageUploaderViewDev from '@/views/ImageUploaderViewDev.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -87,6 +89,17 @@ const router = createRouter({
       name: 'Checkout',
       component: CheckoutView,
       meta: { hideHeaderFooter: true },
+    },
+    {
+      path: '/order-success',
+      name: 'confirmation',
+      component: OrderConfirmation,
+      meta: { hideHeaderFooter: true },
+    },
+    {
+      path: '/dev-image',
+      name: 'dev-image',
+      component: ImageUploaderViewDev,
     },
   ],
 })

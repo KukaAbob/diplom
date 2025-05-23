@@ -20,7 +20,8 @@ public class AddressService {
     }
 
     public Address updateAddress(Address address){
-        Address existingAddress = addressRepository.findById(address.getId());
+        Address existingAddress = addressRepository.findById(address.getId())
+            .orElseThrow(() -> new IllegalArgumentException("no"));
         existingAddress.setCity(address.getCity());
         existingAddress.setCountry(address.getCountry());
         existingAddress.setStreet(address.getStreet());
@@ -30,16 +31,19 @@ public class AddressService {
     }
 
     public void deleteAddress(int addressId){
-        Address address = addressRepository.findById(addressId);
+        Address address = addressRepository.findById(addressId)
+            .orElseThrow(() -> new IllegalArgumentException("no"));
         addressRepository.delete(address);
     }
 
     public Address getAddressById(int addressId){
-        return addressRepository.findById(addressId);
+        return addressRepository.findById(addressId)
+            .orElseThrow(() -> new IllegalArgumentException("no"));
     }
 
     public Address findById(int id){
-        return addressRepository.findById(id);
+        return addressRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("no"));
     }
 
     public List<Address> findByUserId(int id){

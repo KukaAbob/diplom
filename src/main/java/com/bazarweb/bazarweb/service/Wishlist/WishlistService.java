@@ -25,7 +25,7 @@ public class WishlistService {
     private final ProductRepository productRepository;
 
     public Wishlist findOrCreateWishlistByEmail(String email) {
-        User user = userRepository.getUserByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
         
         // Ищем wishlist по userId, чтобы избежать дублирования

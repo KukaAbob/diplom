@@ -30,7 +30,7 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
 
     public Cart findOrCreateCartByEmail(String email) {
-        User user = userRepository.getUserByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
         
         // Ищем корзину по userId, чтобы избежать дублирования

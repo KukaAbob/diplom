@@ -290,50 +290,48 @@
 import { ref, computed, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api/api'
-import { jwtDecode } from 'jwt-decode' // Добавляем импорт библиотеки для декодирования JWT
+import { jwtDecode } from 'jwt-decode'
 
 export default {
   name: 'Checkout',
   setup() {
     const router = useRouter()
 
-    // Функция для получения ID пользователя из JWT токена
-    const getUserIdFromToken = () => {
+    // Функция для получения данных из JWT токена
+    const getDataFromToken = () => {
       try {
         // Получаем токен из localStorage
         const token = localStorage.getItem('jwtToken')
         if (!token) {
           console.error('JWT токен не найден')
           router.push('/login') // Перенаправляем на страницу входа, если токен отсутствует
-          return null
+          return { userId: null, email: null }
         }
-        
-        // Декодируем токен для получения payload
+
         const decodedToken = jwtDecode(token)
-        
-        // Получаем ID пользователя из payload
-        // Примечание: в зависимости от структуры вашего токена, 
-        // путь к ID может отличаться (например, sub, userId, id и т.д.)
         const userId = decodedToken.id
-        
+        const email = decodedToken.email
+
         if (!userId) {
           console.error('ID пользователя не найден в токене')
           router.push('/login')
-          return null
+          return { userId: null, email: null }
         }
-        
-        return userId
+
+        return { userId, email }
       } catch (error) {
         console.error('Ошибка при декодировании JWT токена:', error)
         router.push('/login')
-        return null
+        return { userId: null, email: null }
       }
     }
 
     // Общие состояния
     const currentStep = ref(1)
     const loading = ref(false)
-    const userId = ref(getUserIdFromToken()) // Получаем ID из JWT вместо статического значения
+    const { userId, email } = getDataFromToken() // Получаем ID и email из JWT
+    const userIdRef = ref(userId)
+    const userEmail = ref(email)
 
     // Данные для шага 1: Адреса
     const addresses = ref([])
@@ -360,10 +358,39 @@ export default {
 
     // Данные для шага 3: Подтверждение
     const orderData = reactive({
-      subtotal: 12500,
-      delivery: 500,
-      total: 13000,
+      subtotal: 0,
+      delivery: 500, // Стандартная стоимость доставки
+      total: 0,
     })
+
+    // Функция для получения данных корзины
+    const fetchCartData = async () => {
+      // Проверяем наличие email
+      if (!userEmail.value) {
+        const tokenData = getDataFromToken()
+        userEmail.value = tokenData.email
+        userIdRef.value = tokenData.userId
+        if (!userEmail.value) return
+      }
+
+      loading.value = true
+      try {
+        const response = await api.get(`api/cart?email=${userEmail.value}`)
+        const cartData = response.data
+        // Предполагается, что API возвращает данные с общей суммой
+        // Если формат ответа отличается, нужно будет адаптировать этот код
+        orderData.subtotal = cartData.totalPrice
+        orderData.total = orderData.subtotal + orderData.delivery
+      } catch (error) {
+        console.error('Ошибка при получении данных корзины:', error)
+        // Если получили ошибку 401 или 403, перенаправляем на страницу входа
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          router.push('/login')
+        }
+      } finally {
+        loading.value = false
+      }
+    }
 
     // Вычисляемые свойства
     const isNewAddressValid = computed(() => {
@@ -397,14 +424,16 @@ export default {
     // Методы для шага 1: Адреса
     const fetchAddresses = async () => {
       // Проверяем актуальность ID пользователя перед запросом
-      if (!userId.value) {
-        userId.value = getUserIdFromToken()
-        if (!userId.value) return // Если ID не получен, прерываем выполнение
+      if (!userIdRef.value) {
+        const tokenData = getDataFromToken()
+        userIdRef.value = tokenData.userId
+        userEmail.value = tokenData.email
+        if (!userIdRef.value) return
       }
-      
+
       loading.value = true
       try {
-        const response = await api.get(`api/address/user/${userId.value}`)
+        const response = await api.get(`api/address/user/${userIdRef.value}`)
         addresses.value = response.data
         if (addresses.value.length > 0) {
           selectedAddress.value = addresses.value[0]
@@ -438,11 +467,13 @@ export default {
 
     const saveNewAddress = async () => {
       if (!isNewAddressValid.value) return
-      
+
       // Проверяем актуальность ID пользователя перед запросом
-      if (!userId.value) {
-        userId.value = getUserIdFromToken()
-        if (!userId.value) return
+      if (!userIdRef.value) {
+        const tokenData = getDataFromToken()
+        userIdRef.value = tokenData.userId
+        userEmail.value = tokenData.email
+        if (!userIdRef.value) return
       }
 
       loading.value = true
@@ -450,7 +481,7 @@ export default {
         const addressData = {
           ...newAddress,
           user: {
-            id: userId.value,
+            id: userIdRef.value,
           },
         }
 
@@ -473,14 +504,16 @@ export default {
     // Методы для шага 2: Оплата
     const fetchPaymentMethods = async () => {
       // Проверяем актуальность ID пользователя перед запросом
-      if (!userId.value) {
-        userId.value = getUserIdFromToken()
-        if (!userId.value) return
+      if (!userIdRef.value) {
+        const tokenData = getDataFromToken()
+        userIdRef.value = tokenData.userId
+        userEmail.value = tokenData.email
+        if (!userIdRef.value) return
       }
-      
+
       loading.value = true
       try {
-        const response = await api.get(`api/payment/user/${userId.value}`)
+        const response = await api.get(`api/payment/user/${userIdRef.value}`)
         paymentMethods.value = response.data
         if (paymentMethods.value.length > 0) {
           selectedPayment.value = paymentMethods.value[0]
@@ -514,11 +547,13 @@ export default {
 
     const saveNewPayment = async () => {
       if (!isNewPaymentValid.value) return
-      
+
       // Проверяем актуальность ID пользователя перед запросом
-      if (!userId.value) {
-        userId.value = getUserIdFromToken()
-        if (!userId.value) return
+      if (!userIdRef.value) {
+        const tokenData = getDataFromToken()
+        userIdRef.value = tokenData.userId
+        userEmail.value = tokenData.email
+        if (!userIdRef.value) return
       }
 
       loading.value = true
@@ -531,7 +566,7 @@ export default {
           expiryDate: expiryDate,
           cvvCode: newPayment.cvvCode,
           user: {
-            id: userId.value,
+            id: userIdRef.value,
           },
         }
 
@@ -553,31 +588,62 @@ export default {
 
     // Методы для шага 3: Подтверждение
     const confirmOrder = async () => {
-      // Проверяем актуальность ID пользователя перед запросом
-      if (!userId.value) {
-        userId.value = getUserIdFromToken()
-        if (!userId.value) return
+      if (!userIdRef.value) {
+        const tokenData = getDataFromToken()
+        userIdRef.value = tokenData.userId
+        userEmail.value = tokenData.email
+        if (!userIdRef.value) return
       }
-      
+
       loading.value = true
       try {
-        // Здесь можно реализовать отправку заказа на сервер
+        const token = localStorage.getItem('jwtToken')
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+        // Получаем актуальные данные корзины
+        const cartResponse = await api.get(`api/cart?email=${userEmail.value}`, { headers })
+
+        const cartData = cartResponse.data
+
+        // Проверяем, что корзина не пуста
+        if (!cartData.items || cartData.items.length === 0) {
+          alert('Корзина пуста')
+          return
+        }
+
+        // Преобразуем товары корзины в orderItems
+        const orderItems = cartData.items.map((item) => ({
+          productId: item.productId, // Предполагаем, что в корзине товар хранится как объект
+          quantity: item.quantity,
+          price: item.price,
+        }))
+
         const orderDetails = {
-          userId: userId.value,
+          userId: userIdRef.value,
           addressId: selectedAddress.value.id,
           paymentId: selectedPayment.value.id,
-          total: orderData.total,
-          // Другие необходимые данные заказа
+          date: new Date().toISOString(),
+          status: 'IN_PROGRESS',
+          total: orderData.subtotal,
+          executed: false,
+          orderItems: orderItems,
         }
-        
-        // Отправка данных заказа на сервер
-        // await api.post('api/orders/create', orderDetails)
-        
+
+
+
+        await api.post('api/orders/create', orderDetails, { headers })
+        console.log('Order details sent:', orderDetails)
+
         alert('Заказ успешно оплачен!')
-        // Перенаправление на страницу успешного оформления заказа
         router.push('/order-success')
       } catch (error) {
         console.error('Ошибка при оформлении заказа:', error)
+        if (error.response) {
+          console.error('Response data:', error.response.data)
+          console.error('Response status:', error.response.status)
+        }
         alert('Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте снова.')
       } finally {
         loading.value = false
@@ -600,14 +666,18 @@ export default {
       }).format(price)
     }
 
-    // При создании компонента проверяем наличие токена и загружаем адреса
+    // При создании компонента проверяем наличие токена, загружаем адреса и данные корзины
     onMounted(() => {
       // Проверка наличия токена и перенаправление, если его нет
       if (!localStorage.getItem('jwtToken')) {
         router.push('/login')
         return
       }
-      
+
+      // Загружаем данные корзины для получения общей суммы
+      fetchCartData()
+
+      // Загружаем адреса пользователя
       fetchAddresses()
     })
 
@@ -616,7 +686,8 @@ export default {
       // Общие состояния
       currentStep,
       loading,
-      userId,
+      userIdRef,
+      userEmail,
 
       // Данные для шага 1: Адреса
       addresses,
@@ -699,7 +770,7 @@ export default {
 
 .step-line {
   height: 3px;
-  width: 80px;
+  width: 235px;
   transition: all 0.3s ease;
 }
 

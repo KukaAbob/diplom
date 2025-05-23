@@ -24,7 +24,8 @@ public class PaymentService {
     }
 
     public void paymentDelete(int paymentId){
-        Payment payment = paymentRepository.findById(paymentId);
+        Payment payment = paymentRepository.findById(paymentId)
+            .orElseThrow(() -> new IllegalArgumentException("no"));
         paymentRepository.delete(payment);
     }
 
@@ -71,7 +72,8 @@ public class PaymentService {
     }
 
     public Payment findById(int id){
-        return paymentRepository.findById(id);
+        return paymentRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("no"));
     }
 
     public List<Payment> findByUserId(int id){

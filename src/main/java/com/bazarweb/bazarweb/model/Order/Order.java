@@ -1,6 +1,8 @@
 package com.bazarweb.bazarweb.model.Order;
 
 import com.bazarweb.bazarweb.enums.OrderStatus;
+import com.bazarweb.bazarweb.model.User.Address;
+import com.bazarweb.bazarweb.model.User.Payment;
 import com.bazarweb.bazarweb.model.User.User;
 
 import jakarta.persistence.*;
@@ -44,4 +46,12 @@ public class Order {
 
     @Column(name = "executed", nullable = false)
     private boolean executed;
+
+    @ManyToOne
+    @JoinColumn(name = "address_id", nullable = false)
+    private Address address;
+
+    @ManyToOne
+    @JoinColumn(name = "payment_id", nullable = false)
+    private Payment payment;
 }

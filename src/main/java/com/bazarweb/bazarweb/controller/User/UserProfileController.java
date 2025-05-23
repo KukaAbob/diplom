@@ -36,7 +36,7 @@ public class UserProfileController {
     public ResponseEntity<UserDTO> getUser(@PathVariable int id) {
         User user = userService.findById(id); // Получение сущности пользователя
         List<OrderDTO> orderDTOs = user.getOrders().stream()
-            .map(order -> new OrderDTO(order.getId(), order.getDate(), order.getStatus(), order.getTotal(), order.isExecuted()))
+            .map(order -> new OrderDTO(order.getId(), order.getAddress().getId(), order.getPayment().getId(), order.getDate(), order.getStatus(), order.getTotal(), order.isExecuted(), null))
             .collect(Collectors.toList());
         List<AddressDto> addressDtos = user.getAddress().stream()
             .map(address -> new AddressDto(address.getId(), address.getCity(), address.getCountry(), address.getZipCode(), address.getStreet(), address.getUser().getId()))

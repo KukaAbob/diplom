@@ -2,8 +2,6 @@ package com.bazarweb.bazarweb.controller.Order;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -18,11 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bazarweb.bazarweb.dto.OrderDTO;
-import com.bazarweb.bazarweb.dto.OrderRequestDto;
-import com.bazarweb.bazarweb.exception.EmptyCartException;
 import com.bazarweb.bazarweb.model.Order.Order;
 import com.bazarweb.bazarweb.service.Order.OrderService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -32,26 +29,30 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @PostMapping("/create")
-    public ResponseEntity<Order> createOrder(@RequestBody OrderDTO request) {
-        try {            
-            Order order = orderService.createUserOrder(
-                request.getId(),
-                request.getDate(),
-                request.getStatus(),
-                request.getTotal()
-            );
-            return ResponseEntity.status(HttpStatus.CREATED).body(order);
-        } catch (IllegalArgumentException | EmptyCartException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
+@PostMapping("/create")
+public ResponseEntity<?> createOrder(@Valid @RequestBody OrderDTO request) {
+    try {
+        Order order = orderService.createUserOrder(
+            request.getUserId(),
+            request.getAddressId(),
+            request.getPaymentId(),
+            request.getDate(),
+            request.getStatus(),
+            request.getTotal(),
+            request.getOrderItems()
+        );
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(order);
+        
+    } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
+}
     
-
     @GetMapping("/user")
-    public ResponseEntity<List<OrderDTO>> getUserOrders(@RequestParam String username) {
+    public ResponseEntity<List<OrderDTO>> getUserOrders(@RequestParam String email) {
         try {
-            List<OrderDTO> orders = orderService.getUserOrders(username);
+            List<OrderDTO> orders = orderService.getUserOrders(email);
             return ResponseEntity.ok(orders);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
