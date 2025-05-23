@@ -11,15 +11,15 @@ services:
     envVars:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
-          name: postgres
+          name: diplom
           property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
-          name: postgres
+          name: root
           property: user
       - key: SPRING_DATASOURCE_PASSWORD
         fromDatabase:
-          name: postgres
+          name: 123
           property: password
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
         value: update
