@@ -4,7 +4,7 @@ services:
     name: spring-app
     env: docker
     dockerfilePath: ./Dockerfile
-    plan: starter
+    plan: free
     region: oregon
     buildCommand: ""
     startCommand: ""
@@ -32,7 +32,7 @@ services:
     env: docker
     dockerfilePath: ./frontend/dockerfile
     dockerContext: ./frontend
-    plan: starter
+    plan: free
     region: oregon
     buildCommand: ""
     startCommand: ""
@@ -41,10 +41,10 @@ services:
         value: 70
 
 databases:
-  - name: postgres
-    databaseName: postgres
-    user: postgres
-    plan: starter
+  - name: diplom
+    databaseName: diplom
+    user: root
+    plan: free
 
 # Дополнительные диски для статических файлов (если нужно)
 # disks:
