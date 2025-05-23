@@ -10,9 +10,13 @@ services:
     startCommand: ""
     envVars:
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://postgres:5432/postgres
+        fromDatabase:
+          name: postgres
+          property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
-        value: postgres
+        fromDatabase:
+          name: postgres
+          property: user
       - key: SPRING_DATASOURCE_PASSWORD
         fromDatabase:
           name: postgres
@@ -36,11 +40,11 @@ services:
       - key: PORT
         value: 70
 
-  # PostgreSQL база данных
-  - type: pserv
-    name: postgres
+databases:
+  - name: postgres
+    databaseName: postgres
+    user: postgres
     plan: starter
-    region: oregon
 
 # Дополнительные диски для статических файлов (если нужно)
 # disks:
