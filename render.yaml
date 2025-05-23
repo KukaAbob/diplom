@@ -1,0 +1,52 @@
+services:
+  # Backend Spring приложение
+  - type: web
+    name: spring-app
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    region: oregon
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:postgresql://postgres:5432/postgres
+      - key: SPRING_DATASOURCE_USERNAME
+        value: postgres
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: postgres
+          property: password
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+      - key: PORT
+        value: 8080
+
+  # Frontend приложение
+  - type: web
+    name: frontend-app
+    env: docker
+    dockerfilePath: ./frontend/dockerfile
+    dockerContext: ./frontend
+    plan: starter
+    region: oregon
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: PORT
+        value: 70
+
+  # PostgreSQL база данных
+  - type: pserv
+    name: postgres
+    plan: starter
+    region: oregon
+    databaseName: postgres
+    databaseUser: postgres
+    ipAllowList: []
+
+# Дополнительные диски для статических файлов (если нужно)
+# disks:
+#   - name: postgres-data
+#     mountPath: /var/lib/postgresql/data
+#     sizeGB: 1
