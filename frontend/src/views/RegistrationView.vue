@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import api from '@/api/api' // Подключаем API-инстанс
+import api from '@/api/api'
 
 const router = useRouter()
 

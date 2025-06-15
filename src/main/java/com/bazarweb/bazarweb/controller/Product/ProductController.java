@@ -62,24 +62,4 @@ public class ProductController {
         productVariantService.deleteProductVariant(variantId);
         return ResponseEntity.noContent().build();
     }
-
-    // @PostMapping("/admin/create")
-    // public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDto) {
-    //     Product product = productDto.toEntity();
-    //     Product savedProduct = productService.productCreate(product);
-    //     return ResponseEntity.status(HttpStatus.CREATED).body(ProductDTO.fromEntity(savedProduct));
-    // }
-
-    // @PutMapping("/admin/edit/{id}")
-    // public ResponseEntity<ProductDTO> updateProduct(@PathVariable int id, @RequestBody ProductDTO updatedProductDto) {
-    //     Product updatedProduct = updatedProductDto.toEntity();
-    //     Product savedProduct = productService.updateProduct(id, updatedProduct);
-    //     return ResponseEntity.ok(ProductDTO.fromEntity(savedProduct));
-    // }
-
-    // @DeleteMapping("/admin/delete/{id}")
-    // public ResponseEntity<Void> deleteProduct(@PathVariable int id) {
-    //     productService.deleteProduct(id);
-    //     return ResponseEntity.noContent().build();
-    // }
 }

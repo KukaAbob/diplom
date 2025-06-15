@@ -57,7 +57,7 @@ public class PaymentController {
     }
 
     private PaymentDto convertToDto(Payment payment){
-        PaymentDto dto = new PaymentDto();
+        PaymentDto dto = new PaymentDto(payment.getId(), payment.getCardNumber(), payment.getExpiryDate(), payment.getCvvCode());
         dto.setCardNumber(payment.getCardNumber());
         dto.setCvvCode(payment.getCvvCode());
         dto.setExpiryDate(payment.getExpiryDate());

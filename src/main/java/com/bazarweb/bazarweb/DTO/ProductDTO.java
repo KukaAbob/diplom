@@ -2,11 +2,12 @@ package com.bazarweb.bazarweb.dto;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.bazarweb.bazarweb.enums.Gender;
 import com.bazarweb.bazarweb.enums.ProductStatus;
+import com.bazarweb.bazarweb.model.Catalog.Category;
 import com.bazarweb.bazarweb.model.Product.Product;
+import com.bazarweb.bazarweb.model.Product.ProductVariant;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,8 @@ public class ProductDTO {
     private String name;
     private String description;
     private BigDecimal price;
-    private String category;
+    private String collection;
+    private Category category;
     private ProductStatus productStatus;
     private List<ProductVariantDTO> variants;
     private Gender gender;
@@ -35,16 +37,41 @@ public class ProductDTO {
             .name(product.getName())
             .description(product.getDescription())
             .price(product.getPrice())
-            .category(product.getCategory().getName())
+            .collection(product.getCollection())
+            .category(product.getCategory())
             .productStatus(product.getProductStatus())
             .variants(
                 product.getVariants() != null
                     ? product.getVariants().stream()
                         .map(ProductVariantDTO::fromEntity)
-                        .collect(Collectors.toList())
+                        .toList()
                     : List.of()
             )
             .gender(product.getGender())
             .build();
+    }
+
+    public Product toEntity(){
+        Product product = new Product();
+        product.setId(this.id);
+        product.setGender(gender);
+        product.setName(name);
+        product.setPrice(price);
+        product.setProductStatus(productStatus);
+        product.setDescription(description);
+        product.setCategory(category);
+        product.setCollection(collection);
+
+        if (this.variants != null && !this.variants.isEmpty()) {
+        List<ProductVariant> productVariants = this.variants.stream()
+            .map(variantDTO -> {
+                ProductVariant variant = variantDTO.toEntity();
+                variant.setProduct(product);
+                return variant;
+            })
+            .toList();
+        product.setVariants(productVariants);
+        }
+        return product;
     }
 }

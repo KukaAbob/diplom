@@ -15,7 +15,7 @@ FROM nginx:stable-alpine AS production-stage
 COPY --from=build-stage /frontapp/dist /usr/share/nginx/html
 
 RUN echo 'server { \
-listen 30000; \
+listen 3000; \
 location / { \
 root /usr/share/nginx/html; \
 index index.html; \

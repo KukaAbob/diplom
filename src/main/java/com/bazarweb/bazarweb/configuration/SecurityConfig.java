@@ -40,14 +40,14 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfiguration = new CorsConfiguration();
-                    corsConfiguration.setAllowedOriginPatterns(List.of("http://localhost:70", "http://localhost:5174", "http://localhost:5173")); // Исправлено
-                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    corsConfiguration.setAllowedOriginPatterns(List.of("*")); // Исправлено
+                    corsConfiguration.setAllowedMethods(List.of("*"));
                     corsConfiguration.setAllowedHeaders(List.of("*"));
-                    corsConfiguration.setAllowCredentials(true); // Оставляем
+                    corsConfiguration.setAllowCredentials(false); // Оставляем
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**", "/api/product/all").permitAll()
+                        .requestMatchers("/auth/**", "/api/product/**", "/api/images/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/endpoint", "/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/product/**").hasAnyAuthority("USER", "ADMIN") // Исправлено

@@ -7,6 +7,8 @@ import com.bazarweb.bazarweb.repository.User.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -99,5 +101,9 @@ public class UserService {
     public User findById(int id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User with id " + id + " not found"));
+    }
+
+    public List<User> findAllUsers(){
+        return userRepository.findAll();
     }
 }

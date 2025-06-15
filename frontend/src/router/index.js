@@ -19,6 +19,10 @@ import SearchResultsPageView from '@/views/SearchResultsPageView.vue'
 import CheckoutView from '@/views/CheckoutView.vue'
 import OrderConfirmation from '@/views/OrderConfirmation.vue'
 import ImageUploaderViewDev from '@/views/ImageUploaderViewDev.vue'
+import ManagerView from '@/views/admin/ManagerView.vue'
+import UserManagementView from '@/views/admin/UserManagementView.vue'
+import ProductManagementView from '@/views/admin/ProductManagementView.vue'
+import OrderManagementView from '@/views/admin/OrderManagementView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -100,6 +104,18 @@ const router = createRouter({
       path: '/dev-image',
       name: 'dev-image',
       component: ImageUploaderViewDev,
+    },
+    {
+      path: '/dev-manager',
+      name: 'dev-manager',
+      component: ManagerView,
+      meta: { hideHeaderFooter: true },
+      children: [
+        { path: '', redirect: 'dev-manager/users' },
+        { path: 'users', component: UserManagementView },
+        { path: 'products', component: ProductManagementView },
+        { path: 'orders', component: OrderManagementView },
+      ]
     },
   ],
 })
