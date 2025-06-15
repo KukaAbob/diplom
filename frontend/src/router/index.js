@@ -111,11 +111,11 @@ const router = createRouter({
       component: ManagerView,
       meta: { hideHeaderFooter: true },
       children: [
-        { path: '', redirect: 'dev-manager/users' },
+        { path: '', redirect: '/dev-manager/users' },
         { path: 'users', component: UserManagementView },
         { path: 'products', component: ProductManagementView },
         { path: 'orders', component: OrderManagementView },
-      ]
+      ],
     },
   ],
 })

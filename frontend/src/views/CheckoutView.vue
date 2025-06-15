@@ -631,8 +631,6 @@ export default {
           orderItems: orderItems,
         }
 
-
-
         await api.post('api/orders/create', orderDetails, { headers })
         console.log('Order details sent:', orderDetails)
 

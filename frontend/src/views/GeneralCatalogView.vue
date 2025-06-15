@@ -636,19 +636,6 @@ const toggleWishlist = async (productId, event) => {
   }
 }
 
-// Fetch user's wishlist
-const fetchWishlist = async () => {
-  const email = getUserEmailFromToken()
-  if (!email) return
-
-  try {
-    const response = await api.get(`/api/wishlist/get?email=${encodeURIComponent(email)}`)
-    wishlistItems.value = response.data.map((item) => item.productId)
-  } catch (error) {
-    console.error('Ошибка загрузки списка желаний:', error)
-  }
-}
-
 const addToCart = async () => {
   if (!currentVariant.value || currentVariant.value.stock <= 0 || !selectedProduct.value) {
     return
@@ -770,6 +757,8 @@ const fetchProducts = async () => {
     loading.value = true
     const response = await api.get('/api/product/all')
 
+    console.log('Загруженные товары:', response.data)
+
     // Сохраняем все товары
     products.value = response.data
 
@@ -816,7 +805,7 @@ const filteredProducts = computed(() => {
   if (activeFilter.value !== 'all') {
     const categoryName = categoryMapping[activeFilter.value]
     if (categoryName) {
-      result = result.filter((product) => product.category === categoryName)
+      result = result.filter((product) => product.category.name === categoryName)
     }
   }
 

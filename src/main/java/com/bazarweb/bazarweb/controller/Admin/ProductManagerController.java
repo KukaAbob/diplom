@@ -35,19 +35,19 @@ public class ProductManagerController {
         return productDTOs.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(productDTOs);
     }
 
-@PostMapping("/create")
-public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
-    try {
-        Product productEntity = productDTO.toEntity();
+    @PostMapping("/create")
+    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
+        try {
+            Product productEntity = productDTO.toEntity();
 
-        Product product = productService.productCreate(productEntity);
-        ProductDTO createdProductDTO = ProductDTO.fromEntity(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProductDTO);
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            Product product = productService.productCreate(productEntity);
+            ProductDTO createdProductDTO = ProductDTO.fromEntity(product);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdProductDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
-}
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable int id) {
