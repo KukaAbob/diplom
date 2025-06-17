@@ -37,13 +37,8 @@ public class ProductVariantDTO {
 
     public ProductVariant toEntity() {
         ProductVariant variant = new ProductVariant();
-        variant.setId(this.id);
         variant.setStock(this.stock);
         variant.setPrice(this.price);
-
-        Product product = new Product();
-        product.setId(this.productId);
-        variant.setProduct(product);
 
         return variant;
     }

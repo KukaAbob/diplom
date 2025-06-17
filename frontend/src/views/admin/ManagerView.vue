@@ -4,27 +4,21 @@
       <i class="back-arrow">←</i>
       <span>Назад</span>
     </div>
-
     <div class="manager-container">
-      <!-- Left content area - changes based on selected menu item -->
       <div class="content-area">
         <router-view></router-view>
       </div>
-
-      <!-- Right sidebar menu -->
       <div class="sidebar-menu">
         <div class="menu-item" @click="navigateTo('products')">
           <i class="el-icon-goods"></i>
           <span>Управление продуктами</span>
           <el-icon><ArrowRight /></el-icon>
         </div>
-
         <div class="menu-item" @click="navigateTo('users')">
           <i class="el-icon-user"></i>
           <span>Управление пользователями</span>
           <el-icon><ArrowRight /></el-icon>
         </div>
-
         <div class="menu-item" @click="navigateTo('orders')">
           <i class="el-icon-shopping-cart-full"></i>
           <span>Управление заказами</span>

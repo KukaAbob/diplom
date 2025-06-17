@@ -51,27 +51,41 @@ public class ProductDTO {
             .build();
     }
 
-    public Product toEntity(){
-        Product product = new Product();
-        product.setId(this.id);
-        product.setGender(gender);
-        product.setName(name);
-        product.setPrice(price);
-        product.setProductStatus(productStatus);
-        product.setDescription(description);
-        product.setCategory(category);
-        product.setCollection(collection);
-
-        if (this.variants != null && !this.variants.isEmpty()) {
-        List<ProductVariant> productVariants = this.variants.stream()
-            .map(variantDTO -> {
-                ProductVariant variant = variantDTO.toEntity();
-                variant.setProduct(product);
-                return variant;
-            })
-            .toList();
-        product.setVariants(productVariants);
-        }
-        return product;
+    @Override
+    public String toString() {
+        return "ProductDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", collection='" + collection + '\'' +
+                ", category=" + (category != null ? category.getId() : "null") +
+                ", productStatus=" + productStatus +
+                ", gender=" + gender +
+                ", variants=" + (variants != null ? variants.size() : 0) +
+                '}';
     }
+
+    // public Product toEntity(){
+    //     Product product = new Product();
+    //     product.setGender(gender);
+    //     product.setName(name);
+    //     product.setPrice(price);
+    //     product.setProductStatus(productStatus);
+    //     product.setDescription(description);
+    //     product.setCategory(category);
+    //     product.setCollection(collection);
+
+    //     if (this.variants != null && !this.variants.isEmpty()) {
+    //     List<ProductVariant> productVariants = this.variants.stream()
+    //         .map(variantDTO -> {
+    //             ProductVariant variant = variantDTO.toEntity();
+    //             variant.setProduct(product);
+    //             return variant;
+    //         })
+    //         .toList();
+    //     product.setVariants(productVariants);
+    //     }
+    //     return product;
+    // }
 }
