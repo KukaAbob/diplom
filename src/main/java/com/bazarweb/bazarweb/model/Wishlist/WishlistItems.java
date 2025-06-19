@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "wishlist")
+@Table(name = "wishlist_items")
 public class WishlistItems {
     
     @Id

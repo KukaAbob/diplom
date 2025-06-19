@@ -49,7 +49,8 @@ public class AuthenticationService {
                 .loadUserByUsername(request.getEmail());
     
         var jwt = jwtService.generateToken(user);
-        return new JwtAuthenticationResponse(jwt);
-    }
-    
+        return JwtAuthenticationResponse.builder()
+                .token(jwt)
+                .build();
+    }    
 }

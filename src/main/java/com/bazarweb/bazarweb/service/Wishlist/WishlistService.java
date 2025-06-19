@@ -12,6 +12,7 @@ import com.bazarweb.bazarweb.model.Wishlist.Wishlist;
 import com.bazarweb.bazarweb.model.Wishlist.WishlistItems;
 import com.bazarweb.bazarweb.repository.Product.ProductRepository;
 import com.bazarweb.bazarweb.repository.User.UserRepository;
+import com.bazarweb.bazarweb.repository.Wishlist.WishlistItemsRepository;
 import com.bazarweb.bazarweb.repository.Wishlist.WishlistRepository;
 import com.bazarweb.bazarweb.service.Cart.CartService;
 
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WishlistService {
     private final WishlistRepository wishlistRepository;
+    private final WishlistItemsRepository wishlistItemsRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
@@ -46,7 +48,6 @@ public class WishlistService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + productId));
         
-        // Проверяем, есть ли уже такой товар в списке желаний
         boolean productExists = wishlist.getItems().stream()
                 .anyMatch(item -> item.getProduct().getId() == productId);
         
@@ -60,14 +61,18 @@ public class WishlistService {
             return wishlistRepository.save(wishlist);
         }
         
-        return wishlist; // Товар уже есть в списке желаний
+        return wishlist;
     }
 
     public void removeWishlistItem(String email, int productId) {
-        Wishlist wishlist = findOrCreateWishlistByEmail(email);
+        Optional<WishlistItems> wishlistItem = wishlistItemsRepository
+            .findByWishlistUserEmailAndProductId(email, productId);
         
-        wishlist.getItems().removeIf(item -> item.getProduct().getId() == productId);
-        wishlistRepository.save(wishlist);
+        if (wishlistItem.isPresent()) {
+            wishlistItemsRepository.delete(wishlistItem.get()); // Стандартный CRUD метод
+        } else {
+            throw new IllegalArgumentException("Product not found in wishlist");
+        }
     }
 
     public List<WishlistItems> getWishlistItems(String email) {
@@ -84,16 +89,13 @@ public class WishlistService {
     public void moveToCart(String email, int productId, CartService cartService) {
         Wishlist wishlist = findOrCreateWishlistByEmail(email);
         
-        // Проверяем, есть ли товар в списке желаний
         Optional<WishlistItems> wishlistItemOptional = wishlist.getItems().stream()
                 .filter(item -> item.getProduct().getId() == productId)
                 .findFirst();
         
         if (wishlistItemOptional.isPresent()) {
-            // Добавляем товар в корзину с количеством 1
             cartService.addToCart(email, productId, 1);
             
-            // Удаляем товар из списка желаний
             removeWishlistItem(email, productId);
         }
     }

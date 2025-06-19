@@ -33,8 +33,8 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/auth',
-      name: 'auth',
+      path: '/authentication',
+      name: 'authentication',
       component: AuthorizationView,
       meta: { hideHeaderFooter: true },
     },

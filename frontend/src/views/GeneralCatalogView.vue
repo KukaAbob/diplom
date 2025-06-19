@@ -293,11 +293,11 @@
           <p class="product-price">{{ product.price }} KZT</p>
           <div class="product-colors">
             <div
-              v-for="color in getUniqueColors(product)"
-              :key="color"
+              v-for="colorName in getUniqueColors(product)"
+              :key="colorName"
               class="color-dot"
-              :style="{ backgroundColor: color }"
-              :title="color"
+              :style="{ backgroundColor: getColorValue(colorName) }"
+              :title="colorName"
             ></div>
           </div>
         </div>
@@ -371,13 +371,13 @@
               <h3>Цвет</h3>
               <div class="color-options">
                 <div
-                  v-for="color in uniqueColors"
-                  :key="color"
+                  v-for="colorName in uniqueColors"
+                  :key="colorName"
                   class="color-option"
-                  :class="{ selected: selectedColor === color }"
-                  :style="{ backgroundColor: color }"
-                  :title="color"
-                  @click="selectColor(color)"
+                  :class="{ selected: selectedColor === colorName }"
+                  :style="{ backgroundColor: getColorValue(colorName) }"
+                  :title="colorName"
+                  @click="selectColor(colorName)"
                 ></div>
               </div>
               <p class="selected-color-name" v-if="selectedColor">{{ selectedColor }}</p>
@@ -826,14 +826,25 @@ const getProductMainImage = (productId) => {
 }
 
 const getUniqueColors = (product) => {
-  return [...new Set(product.variants?.map((v) => v.color) || [])]
+  const uniqueColorNames = [...new Set(product.variants?.map((v) => v.color) || [])]
+  return uniqueColorNames // Возвращаем просто массив названий цветов
+}
+
+const getColorValue = (colorName) => {
+  const colorMap = {
+    'Черный': '#000000',
+    'Белый': '#FFFFFF',
+    'Коричневый': '#964B00',
+  }
+  
+  return colorMap[colorName] || '#6B7280' // По умолчанию серый цвет, если цвет не найден
 }
 
 const selectProduct = (product) => {
   selectedProduct.value = product
 
   if (product.variants && product.variants.length > 0) {
-    selectedColor.value = product.variants[0].color
+    selectedColor.value = null  // Изменить с product.variants[0].color на null
     selectedSize.value = null
   }
 
@@ -866,6 +877,10 @@ const uniqueColors = computed(() => {
 })
 
 const availableSizes = computed(() => {
+  if (!selectedColor.value) {
+    // Если цвет не выбран, показываем все доступные размеры
+    return [...new Set(selectedProduct.value?.variants?.map((v) => v.size) || [])]
+  }
   return (
     selectedProduct.value?.variants
       ?.filter((v) => v.color === selectedColor.value)
@@ -897,8 +912,14 @@ const selectSize = (size) => {
 }
 
 const isSizeAvailable = (size) => {
+  if (!selectedColor.value) {
+    // Если цвет не выбран, проверяем наличие размера для любого цвета
+    return selectedProduct.value?.variants?.some(
+      (v) => v.size === size && v.stock > 0
+    )
+  }
   return selectedProduct.value?.variants?.some(
-    (v) => v.color === selectedColor.value && v.size === size && v.stock > 0,
+    (v) => v.color === selectedColor.value && v.size === size && v.stock > 0
   )
 }
 
@@ -1509,9 +1530,9 @@ onMounted(() => {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  margin-top: 200px;
 }
 
-/* Галерея изображений */
 .product-gallery {
   flex: 1;
   min-width: 300px;

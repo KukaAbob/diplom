@@ -30,7 +30,7 @@ public class OrderController {
     private final OrderService orderService;
 
 @PostMapping("/create")
-public ResponseEntity<?> createOrder(@Valid @RequestBody OrderDTO request) {
+public ResponseEntity<?> createOrder(@RequestBody OrderDTO request) {
     try {
         Order order = orderService.createUserOrder(
             request.getUserId(),

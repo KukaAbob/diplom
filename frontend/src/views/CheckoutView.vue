@@ -375,7 +375,7 @@ export default {
 
       loading.value = true
       try {
-        const response = await api.get(`api/cart?email=${userEmail.value}`)
+        const response = await api.get(`/api/cart?email=${userEmail.value}`)
         const cartData = response.data
         // Предполагается, что API возвращает данные с общей суммой
         // Если формат ответа отличается, нужно будет адаптировать этот код
@@ -433,7 +433,7 @@ export default {
 
       loading.value = true
       try {
-        const response = await api.get(`api/address/user/${userIdRef.value}`)
+        const response = await api.get(`/api/address/user/${userIdRef.value}`)
         addresses.value = response.data
         if (addresses.value.length > 0) {
           selectedAddress.value = addresses.value[0]
@@ -485,7 +485,7 @@ export default {
           },
         }
 
-        const response = await api.post('api/address/create', addressData)
+        const response = await api.post('/api/address/create', addressData)
         const newAddressData = response.data
         addresses.value.push(newAddressData)
         selectedAddress.value = newAddressData
@@ -513,7 +513,7 @@ export default {
 
       loading.value = true
       try {
-        const response = await api.get(`api/payment/user/${userIdRef.value}`)
+        const response = await api.get(`/api/payment/user/${userIdRef.value}`)
         paymentMethods.value = response.data
         if (paymentMethods.value.length > 0) {
           selectedPayment.value = paymentMethods.value[0]
@@ -570,7 +570,7 @@ export default {
           },
         }
 
-        const response = await api.post('api/payment/create', paymentData)
+        const response = await api.post('/api/payment/create', paymentData)
         const newPaymentData = response.data
         paymentMethods.value.push(newPaymentData)
         selectedPayment.value = newPaymentData
@@ -603,7 +603,7 @@ export default {
           'Content-Type': 'application/json',
         }
         // Получаем актуальные данные корзины
-        const cartResponse = await api.get(`api/cart?email=${userEmail.value}`, { headers })
+        const cartResponse = await api.get(`/api/cart?email=${userEmail.value}`, { headers })
 
         const cartData = cartResponse.data
 
@@ -631,7 +631,7 @@ export default {
           orderItems: orderItems,
         }
 
-        await api.post('api/orders/create', orderDetails, { headers })
+        await api.post('/api/order/create', orderDetails, { headers })
         console.log('Order details sent:', orderDetails)
 
         alert('Заказ успешно оплачен!')

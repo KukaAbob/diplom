@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 public class ProductVariant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
@@ -39,7 +39,7 @@ public class ProductVariant {
     private Size size;
 
     @Column(name = "stock", nullable = false)
-    private int stock;
+    private Integer stock;
 
     @Column(name = "price", nullable = false)
     private BigDecimal price;

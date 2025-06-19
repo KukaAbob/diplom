@@ -35,28 +35,28 @@ public class SecurityConfig {
         this.encryptionConfiguration = encryptionConfiguration;
     }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(request -> {
-                    var corsConfiguration = new CorsConfiguration();
-                    corsConfiguration.setAllowedOriginPatterns(List.of("*")); // Исправлено
-                    corsConfiguration.setAllowedMethods(List.of("*"));
-                    corsConfiguration.setAllowedHeaders(List.of("*"));
-                    corsConfiguration.setAllowCredentials(false); // Оставляем
-                    return corsConfiguration;
-                }))
-                .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**", "/api/product/**", "/api/images/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/endpoint", "/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/product/**").hasAnyAuthority("USER", "ADMIN") // Исправлено
-                        .anyRequest().authenticated())
-                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable)
+            .cors(cors -> cors.configurationSource(request -> {
+                var corsConfiguration = new CorsConfiguration();
+                corsConfiguration.setAllowedOriginPatterns(List.of("*"));
+                corsConfiguration.setAllowedMethods(List.of("*"));
+                corsConfiguration.setAllowedHeaders(List.of("*"));
+                corsConfiguration.setAllowCredentials(false);
+                return corsConfiguration;
+            }))
+            .authorizeHttpRequests(request -> request
+                    .requestMatchers("/auth/**", "/api/product/**", "/api/dev/**").permitAll() // Сначала permitAll
+                    .requestMatchers("/api/images/**").permitAll()
+                    .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
+                    .requestMatchers("/endpoint", "/admin/**").hasAuthority("ADMIN")
+                    .anyRequest().authenticated())
+            .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+}
     
 
     @Bean

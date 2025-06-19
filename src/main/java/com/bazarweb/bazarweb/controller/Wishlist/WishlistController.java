@@ -56,11 +56,15 @@ public class WishlistController {
         return ResponseEntity.ok(toDTO(wishlist));
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteFromWishlist(@RequestBody RemoveFromWishlistRequest request) {
+@DeleteMapping("/delete")
+public ResponseEntity<String> deleteFromWishlist(@RequestBody RemoveFromWishlistRequest request) {
+    try {
         wishlistService.removeWishlistItem(request.getEmail(), request.getProductId());
         return ResponseEntity.ok("Товар удален из списка желаний");
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
+}
 
     @PostMapping("/move-to-cart")
     public ResponseEntity<String> moveToCart(@RequestBody MoveToCartRequest request) {

@@ -8,6 +8,9 @@ import com.bazarweb.bazarweb.enums.ProductStatus;
 import com.bazarweb.bazarweb.model.Catalog.Category;
 import com.bazarweb.bazarweb.model.Product.Product;
 import com.bazarweb.bazarweb.model.Product.ProductVariant;
+import com.bazarweb.bazarweb.repository.Catalog.CategoryRepository;
+import com.bazarweb.bazarweb.repository.Product.ColorRepository;
+import com.bazarweb.bazarweb.repository.Product.SizeRepository;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,12 +24,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDTO {
-    private int id;
+    private Integer id;
     private String name;
     private String description;
     private BigDecimal price;
     private String collection;
-    private Category category;
+    private CategoryDTO category; // Изменено на CategoryDTO
     private ProductStatus productStatus;
     private List<ProductVariantDTO> variants;
     private Gender gender;
@@ -38,7 +41,7 @@ public class ProductDTO {
             .description(product.getDescription())
             .price(product.getPrice())
             .collection(product.getCollection())
-            .category(product.getCategory())
+            .category(product.getCategory() != null ? CategoryDTO.fromEntity(product.getCategory()) : null) // Исправлено
             .productStatus(product.getProductStatus())
             .variants(
                 product.getVariants() != null
@@ -51,41 +54,32 @@ public class ProductDTO {
             .build();
     }
 
-    @Override
-    public String toString() {
-        return "ProductDTO{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", price=" + price +
-                ", collection='" + collection + '\'' +
-                ", category=" + (category != null ? category.getId() : "null") +
-                ", productStatus=" + productStatus +
-                ", gender=" + gender +
-                ", variants=" + (variants != null ? variants.size() : 0) +
-                '}';
+    public Product toEntity(ColorRepository colorRepository, SizeRepository sizeRepository, CategoryRepository categoryRepository) {
+        Product product = new Product();
+        product.setGender(gender);
+        product.setName(name);
+        product.setPrice(price);
+        product.setProductStatus(productStatus);
+        product.setDescription(description);
+        product.setCollection(collection);
+        
+        // Найти категорию по ID
+        if (this.category != null && this.category.getId() != null) {
+            Category category = categoryRepository.findById(this.category.getId())
+                .orElseThrow(() -> new RuntimeException("Категория не найдена: " + this.category.getId()));
+            product.setCategory(category);
+        }
+       
+        if (this.variants != null && !this.variants.isEmpty()) {
+            List<ProductVariant> productVariants = this.variants.stream()
+                .map(variantDTO -> {
+                    ProductVariant variant = variantDTO.toEntity(colorRepository, sizeRepository);
+                    variant.setProduct(product);
+                    return variant;
+                })
+                .toList();
+            product.setVariants(productVariants);
+        }
+        return product;
     }
-
-    // public Product toEntity(){
-    //     Product product = new Product();
-    //     product.setGender(gender);
-    //     product.setName(name);
-    //     product.setPrice(price);
-    //     product.setProductStatus(productStatus);
-    //     product.setDescription(description);
-    //     product.setCategory(category);
-    //     product.setCollection(collection);
-
-    //     if (this.variants != null && !this.variants.isEmpty()) {
-    //     List<ProductVariant> productVariants = this.variants.stream()
-    //         .map(variantDTO -> {
-    //             ProductVariant variant = variantDTO.toEntity();
-    //             variant.setProduct(product);
-    //             return variant;
-    //         })
-    //         .toList();
-    //     product.setVariants(productVariants);
-    //     }
-    //     return product;
-    // }
 }

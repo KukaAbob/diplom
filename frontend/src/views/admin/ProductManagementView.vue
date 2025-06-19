@@ -5,7 +5,7 @@
       <h2>Управление продуктами</h2>
       <button 
         class="create-btn" 
-        @click="createProduct"
+        @click="openCreateModal"
         :disabled="loading"
         title="Создать новый продукт"
       >
@@ -88,7 +88,7 @@
       <p>Продукты не найдены</p>
       <button 
         class="create-btn secondary" 
-        @click="createProduct"
+        @click="openCreateModal"
         :disabled="loading"
       >
         <svg class="create-icon" viewBox="0 0 24 24">
@@ -96,6 +96,111 @@
         </svg>
         Создать первый продукт
       </button>
+    </div>
+
+    <!-- Модальное окно создания -->
+    <div v-if="showCreateModal" class="modal-overlay" @click="closeCreateModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>Создать новый продукт</h3>
+          <button class="close-btn" @click="closeCreateModal">
+            <svg viewBox="0 0 24 24">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+          </button>
+        </div>
+        
+        <form @submit.prevent="createProduct" class="edit-form">
+          <div class="form-group">
+            <label for="new-name">Название <span class="required">*</span>:</label>
+            <input 
+              id="new-name"
+              v-model="newProduct.name" 
+              type="text" 
+              required 
+              class="form-input"
+              placeholder="Введите название продукта"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="new-description">Описание <span class="required">*</span>:</label>
+            <textarea 
+              id="new-description"
+              v-model="newProduct.description" 
+              class="form-textarea"
+              rows="3"
+              required
+              placeholder="Введите описание продукта"
+            ></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="new-price">Цена <span class="required">*</span>:</label>
+              <input 
+                id="new-price"
+                v-model="newProduct.price" 
+                type="number" 
+                step="0.01"
+                min="0"
+                required
+                class="form-input"
+                placeholder="0.00"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="new-collection">Коллекция:</label>
+              <input 
+                id="new-collection"
+                v-model="newProduct.collection" 
+                type="text" 
+                class="form-input"
+                placeholder="Введите название коллекции"
+              >
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="new-category">Категория <span class="required">*</span>:</label>
+              <select id="new-category" v-model="newProduct.categoryId" class="form-select" required>
+                <option value="">Выберите категорию</option>
+                <option v-for="category in categories" :key="category.id" :value="category.id">
+                  {{ category.name }}
+                </option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="new-status">Статус <span class="required">*</span>:</label>
+              <select id="new-status" v-model="newProduct.productStatus" class="form-select" required>
+                <option value="IN_STOCK">В наличии</option>
+                <option value="OUT_OF_STOCK">Нет в наличии</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="new-gender">Пол <span class="required">*</span>:</label>
+            <select id="new-gender" v-model="newProduct.gender" class="form-select" required>
+              <option value="MALE">Мужской</option>
+              <option value="FEMALE">Женский</option>
+            </select>
+          </div>
+          
+          <div class="modal-actions">
+            <button type="button" class="cancel-btn" @click="closeCreateModal">
+              Отмена
+            </button>
+            <button type="submit" class="save-btn" :disabled="creating">
+              <span v-if="creating">Создание...</span>
+              <span v-else>Создать продукт</span>
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Модальное окно редактирования -->
@@ -194,9 +299,25 @@ import { ref, onMounted } from 'vue'
 import api from '@/api/api'
 
 const products = ref([])
+const categories = ref([])
 const loading = ref(false)
+const creating = ref(false)
+const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const updating = ref(false)
+
+// Объект для создания нового продукта
+const newProduct = ref({
+  name: '',
+  description: '',
+  price: null,
+  collection: '',
+  categoryId: '',
+  productStatus: 'IN_STOCK',
+  gender: 'MALE'
+})
+
+// Объект для редактирования продукта
 const editingProduct = ref({
   id: null,
   name: '',
@@ -233,10 +354,110 @@ const getGenderText = (gender) => {
   }
 }
 
-const createProduct = () => {
-  // Пока оставляем пустой функционал для будущего
-  alert('Функция создания продукта будет реализована позже')
-  console.log('Создание нового продукта')
+// Функции для модального окна создания
+const openCreateModal = () => {
+  // Сбрасываем форму
+  newProduct.value = {
+    name: '',
+    description: '',
+    price: null,
+    collection: '',
+    categoryId: '',
+    productStatus: 'IN_STOCK',
+    gender: 'MALE'
+  }
+  showCreateModal.value = true
+}
+
+const closeCreateModal = () => {
+  showCreateModal.value = false
+  newProduct.value = {
+    name: '',
+    description: '',
+    price: null,
+    collection: '',
+    categoryId: '',
+    productStatus: 'IN_STOCK',
+    gender: 'MALE'
+  }
+}
+
+// Основная функция создания продукта
+const createProduct = async () => {
+  // Валидация обязательных полей
+  if (!newProduct.value.name.trim()) {
+    alert('Название продукта обязательно для заполнения')
+    return
+  }
+  
+  if (!newProduct.value.description.trim()) {
+    alert('Описание продукта обязательно для заполнения')
+    return
+  }
+  
+  if (!newProduct.value.price || newProduct.value.price <= 0) {
+    alert('Цена продукта должна быть больше 0')
+    return
+  }
+  
+  if (!newProduct.value.categoryId) {
+    alert('Выберите категорию продукта')
+    return
+  }
+
+  creating.value = true
+  
+  try {
+    console.log('Создаем новый продукт...')
+    
+    // Подготавливаем данные для отправки согласно вашему API
+    const productData = {
+      name: newProduct.value.name.trim(),
+      description: newProduct.value.description.trim(),
+      price: parseFloat(newProduct.value.price),
+      collection: newProduct.value.collection.trim() || null,
+      category: {
+        id: parseInt(newProduct.value.categoryId)
+      },
+      productStatus: newProduct.value.productStatus,
+      gender: newProduct.value.gender,
+      variants: [] // Пустой массив вариантов для начала
+    }
+    
+    console.log('Отправляем данные:', productData)
+    
+    // Отправляем POST запрос на создание
+    const response = await api.post('/api/dev/product/create', productData)
+    
+    console.log('Ответ сервера при создании:', response)
+    
+    // Добавляем новый продукт в локальный массив
+    if (response.data) {
+      products.value.push(response.data)
+    }
+    
+    alert(`Продукт "${newProduct.value.name}" успешно создан`)
+    closeCreateModal()
+    
+    // Перезагружаем список продуктов для синхронизации
+    await fetchProducts()
+    
+  } catch (error) {
+    console.error('Ошибка при создании продукта:', error)
+    
+    let errorMessage = 'Неизвестная ошибка'
+    if (error.response?.data?.error) {
+      errorMessage = error.response.data.error
+    } else if (error.response?.data?.message) {
+      errorMessage = error.response.data.message
+    } else if (error.message) {
+      errorMessage = error.message
+    }
+    
+    alert('Ошибка при создании продукта: ' + errorMessage)
+  } finally {
+    creating.value = false
+  }
 }
 
 const editProduct = (product) => {
@@ -359,6 +580,28 @@ const deleteProduct = async (productId, productName) => {
   }
 }
 
+// Загрузка категорий для селекта
+const fetchCategories = async () => {
+  try {
+    console.log('Загружаем категории...')
+    const response = await api.get('/api/dev/category/all') // Предполагаем такой endpoint
+    
+    if (response && response.data) {
+      if (Array.isArray(response.data)) {
+        categories.value = response.data
+      } else if (response.data.data && Array.isArray(response.data.data)) {
+        categories.value = response.data.data
+      }
+    }
+    
+    console.log('Категории загружены:', categories.value.length)
+  } catch (error) {
+    console.error('Ошибка при загрузке категорий:', error)
+    // Не показываем alert для категорий, так как продукт может работать и без них
+    categories.value = []
+  }
+}
+
 const fetchProducts = async () => {
   loading.value = true
   try {
@@ -414,7 +657,10 @@ const fetchProducts = async () => {
   }
 }
 
-onMounted(fetchProducts)
+onMounted(async () => {
+  await fetchCategories() // Сначала загружаем категории
+  await fetchProducts()   // Затем продукты
+})
 </script>
 
 <style scoped>

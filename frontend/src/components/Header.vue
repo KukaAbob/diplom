@@ -265,7 +265,7 @@
       </div>
 
       <!-- Если пользователь не авторизован -->
-      <RouterLink v-else to="/auth" class="cart-button">
+      <RouterLink v-else to="/authentication" class="cart-button">
         <div class="icons">
           <img src="@/assets/img/icons/profile.svg" alt="Профиль" class="icon" />
         </div>

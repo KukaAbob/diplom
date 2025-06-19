@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 public class Size {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(name = "name", nullable = false, length = 3)
     private String name;

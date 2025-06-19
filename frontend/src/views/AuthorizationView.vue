@@ -15,9 +15,28 @@
           <p class="subtitle">
             У ВАС УЖЕ ЕСТЬ УЧЕТНАЯ ЗАПИСЬ? ВВЕДИТЕ СВОИ ДАННЫЕ ДЛЯ ВХОДА В СИСТЕМУ
           </p>
-          <input type="email" placeholder="Укажите свой адрес электронной почты" class="input" />
-          <input type="password" placeholder="Пароль" class="input" />
-          <button class="btn black-btn">НАЧАТЬ СЕАНС</button>
+          <form @submit.prevent="handleLogin">
+            <input 
+              type="email" 
+              placeholder="Укажите свой адрес электронной почты" 
+              class="input"
+              v-model="loginForm.email"
+              required
+            />
+            <input 
+              type="password" 
+              placeholder="Пароль" 
+              class="input"
+              v-model="loginForm.password"
+              required
+            />
+            <button type="submit" class="btn black-btn" :disabled="isLoading">
+              {{ isLoading ? 'ВХОД...' : 'НАЧАТЬ СЕАНС' }}
+            </button>
+          </form>
+          <div v-if="errorMessage" class="error-message">
+            {{ errorMessage }}
+          </div>
         </div>
         <div class="registration animated-text">
           <p class="subtitle">
@@ -46,7 +65,104 @@
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// Реактивные данные для формы
+const loginForm = ref({
+  email: '',
+  password: ''
+})
+
+const isLoading = ref(false)
+const errorMessage = ref('')
+
+// Функция для обработки входа в систему
+const handleLogin = async () => {
+  if (!loginForm.value.email || !loginForm.value.password) {
+    errorMessage.value = 'Пожалуйста, заполните все поля'
+    return
+  }
+
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    const response = await fetch('/auth/sign-in', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: loginForm.value.email,
+        password: loginForm.value.password
+      })
+    })
+
+    if (response.ok) {
+      // Проверяем, есть ли содержимое в ответе
+      const contentType = response.headers.get('content-type')
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json()
+        
+        // Сохраняем токен если он есть в ответе
+        if (data.token) {
+          localStorage.setItem('authToken', data.token)
+        }
+      }
+      
+      // Перенаправляем пользователя на главную страницу или личный кабинет
+      router.push('/')
+      
+    } else {
+      // Обрабатываем ошибки
+      let errorMsg = 'Ошибка входа в систему'
+      
+      try {
+        const contentType = response.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json()
+          errorMsg = errorData.message || errorMsg
+        } else {
+          // Если ответ не JSON, используем текст ответа или стандартное сообщение
+          const textResponse = await response.text()
+          if (textResponse) {
+            errorMsg = textResponse
+          }
+        }
+      } catch (parseError) {
+        console.warn('Could not parse error response:', parseError)
+      }
+      
+      // Определяем сообщение об ошибке по статусу
+      switch (response.status) {
+        case 403:
+          errorMsg = 'Доступ запрещен. Проверьте правильность email и пароля'
+          break
+        case 401:
+          errorMsg = 'Неверный email или пароль'
+          break
+        case 404:
+          errorMsg = 'Сервис временно недоступен'
+          break
+        case 500:
+          errorMsg = 'Внутренняя ошибка сервера'
+          break
+      }
+      
+      errorMessage.value = errorMsg
+    }
+  } catch (error) {
+    console.error('Login error:', error)
+    errorMessage.value = 'Ошибка соединения с сервером'
+  } finally {
+    isLoading.value = false
+  }
+}
+</script>
 
 <style scoped>
 /* Анимация появления с поднятием */
@@ -156,6 +272,10 @@
   color: white;
   margin-top: 65px;
 }
+.black-btn:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
 .white-btn {
   background: white;
   border: 1px solid black;
@@ -192,5 +312,13 @@
 .policy {
   font-size: 12px;
   color: gray;
+}
+
+/* Стили для сообщения об ошибке */
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 10px;
+  text-align: center;
 }
 </style>

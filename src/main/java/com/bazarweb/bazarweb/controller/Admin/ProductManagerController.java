@@ -4,12 +4,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bazarweb.bazarweb.dto.ProductDTO;
+import com.bazarweb.bazarweb.dto.Requests.admin.ProductUpdateRequest;
+import com.bazarweb.bazarweb.enums.Gender;
+import com.bazarweb.bazarweb.enums.ProductStatus;
+import com.bazarweb.bazarweb.model.Catalog.Category;
 import com.bazarweb.bazarweb.model.Product.Product;
+import com.bazarweb.bazarweb.model.Product.ProductVariant;
 import com.bazarweb.bazarweb.service.Product.ProductService;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,29 +58,89 @@ public class ProductManagerController {
     //     }
     // }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@RequestBody ProductDTO productDTO) {
+@PostMapping("/create")
+public ResponseEntity<?> createProduct(@RequestBody Product product, HttpServletRequest request) {
+    try {
+        // Детальное логирование
+        System.out.println("=== DETAILED LOGGING ===");
+        System.out.println("Content-Type: " + request.getContentType());
+        System.out.println("Request Method: " + request.getMethod());
+        
+        // Логируем сам объект
+        System.out.println("Received Product object: " + product);
+        System.out.println("Product class: " + product.getClass().getName());
+        
+        // Детально проверяем каждое поле
+        System.out.println("=== FIELD BY FIELD ===");
+        System.out.println("Name: '" + product.getName() + "' (length: " + 
+            (product.getName() != null ? product.getName().length() : "null") + ")");
+        System.out.println("Name equals 'null'? " + "null".equals(product.getName()));
+        System.out.println("Name is null? " + (product.getName() == null));
+        
+        System.out.println("Description: '" + product.getDescription() + "' (length: " + 
+            (product.getDescription() != null ? product.getDescription().length() : "null") + ")");
+        System.out.println("Description equals 'null'? " + "null".equals(product.getDescription()));
+        
+        System.out.println("Price: " + product.getPrice());
+        System.out.println("Collection: '" + product.getCollection() + "'");
+        System.out.println("Category: " + product.getCategory());
+        System.out.println("Gender: " + product.getGender());
+        System.out.println("Status: " + product.getProductStatus());
+        System.out.println("Variants: " + product.getVariants());
+        
+        // Проверяем и очищаем данные от строк "null"
+        if ("null".equals(product.getName())) {
+            System.out.println("Converting string 'null' to actual null for name");
+            product.setName(null);
+        }
+        if ("null".equals(product.getDescription())) {
+            System.out.println("Converting string 'null' to actual null for description");
+            product.setDescription(null);
+        }
+        if ("null".equals(product.getCollection())) {
+            System.out.println("Converting string 'null' to actual null for collection");
+            product.setCollection(null);
+        }
+        
+        System.out.println("=== AFTER CLEANUP ===");
+        System.out.println("Name after cleanup: '" + product.getName() + "'");
+        System.out.println("Description after cleanup: '" + product.getDescription() + "'");
+        
+        Product savedProduct = productService.productCreate(product);
+       
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
+    } catch (RuntimeException e) {
+        System.out.println("RuntimeException caught: " + e.getMessage());
+        e.printStackTrace();
+        return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+    } catch (Exception e) {
+        System.out.println("General exception caught: " + e.getMessage());
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(Map.of("error", "Internal server error: " + e.getMessage()));
+    }
+}
+
+@PutMapping("/update/{id}")
+    public ResponseEntity<?> updateProduct(@PathVariable Integer id, 
+                                         @RequestBody ProductUpdateRequest request) {
+        System.out.println("=== ОБНОВЛЕНИЕ ПРОДУКТА ID: " + id + " ===");
+        System.out.println("Данные: " + request.getName());
+        
         try {
-            // Логируем входящие данные
-            System.out.println("Received ProductDTO: " + productDTO);
-            System.out.println("Name: " + productDTO.getName());
-            System.out.println("Description: " + productDTO.getDescription());
-            System.out.println("Price: " + productDTO.getPrice());
-            System.out.println("Category: " + productDTO.getCategory());
-            System.out.println("Gender: " + productDTO.getGender());
-            System.out.println("Status: " + productDTO.getProductStatus());
-            
-            Product savedProduct = productService.productCreate(productDTO);
-            ProductDTO createdProductDTO = ProductDTO.fromEntity(savedProduct);
-            
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdProductDTO);
+            ProductDTO updatedProduct = productService.updateProduct(id, request);
+            return ResponseEntity.ok(updatedProduct);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Ошибка валидации: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Ошибка: " + e.getMessage());
         } catch (RuntimeException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            System.err.println("Ошибка выполнения: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ошибка: " + e.getMessage());
         } catch (Exception e) {
+            System.err.println("Неожиданная ошибка: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Internal server error: " + e.getMessage()));
+                .body("Внутренняя ошибка сервера");
         }
     }
 
