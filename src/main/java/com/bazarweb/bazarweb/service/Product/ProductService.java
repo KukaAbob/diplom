@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.bazarweb.bazarweb.dto.ProductDTO;
 import com.bazarweb.bazarweb.dto.ProductVariantDTO;
+import com.bazarweb.bazarweb.dto.Requests.admin.ProductCreateRequest;
 import com.bazarweb.bazarweb.dto.Requests.admin.ProductUpdateRequest;
 import com.bazarweb.bazarweb.dto.Requests.admin.ProductVariantUpdateRequest;
 import com.bazarweb.bazarweb.enums.Gender;
@@ -26,6 +27,7 @@ import com.bazarweb.bazarweb.repository.Product.ProductRepository;
 import com.bazarweb.bazarweb.repository.Product.ProductVariantRepository;
 import com.bazarweb.bazarweb.repository.Product.SizeRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -39,6 +41,24 @@ public class ProductService {
     private final SizeRepository sizeRepository;
     
     public Product save(Product product){
+        return productRepository.save(product);
+    }
+
+    public Product createFromRequest(ProductCreateRequest request) {
+        // Найти категорию
+        Category category = categoryRepository.findById(request.getCategoryId())
+            .orElseThrow(() -> new EntityNotFoundException("Категория с ID " + request.getCategoryId() + " не найдена"));
+        
+        // Создать продукт
+        Product product = new Product();
+        product.setName(request.getName().trim());
+        product.setDescription(request.getDescription().trim());
+        product.setPrice(request.getPrice());
+        product.setCollection(request.getCollection() != null ? request.getCollection().trim() : null);
+        product.setCategory(category);
+        product.setProductStatus(request.getProductStatus());
+        product.setGender(request.getGender());
+        
         return productRepository.save(product);
     }
 
@@ -131,45 +151,6 @@ private List<ProductVariant> createProductVariantsFromEntity(List<ProductVariant
     return variants;
 }
 
-// Альтернативный метод, если варианты приходят как строки в JSON
-private List<ProductVariant> createProductVariantsFromStrings(Map<String, Object> variantData, Product product) {
-    List<ProductVariant> variants = new ArrayList<>();
-    
-    // Предполагаем, что варианты приходят в формате:
-    // "variants": [{"color": "Red", "size": "M", "stock": 10, "price": 100.0}]
-    if (variantData.containsKey("variants")) {
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> variantsList = (List<Map<String, Object>>) variantData.get("variants");
-        
-        for (Map<String, Object> variantMap : variantsList) {
-            ProductVariant variant = new ProductVariant();
-            variant.setProduct(product);
-            
-            if (variantMap.containsKey("stock")) {
-                variant.setStock(((Number) variantMap.get("stock")).intValue());
-            }
-            
-            if (variantMap.containsKey("price")) {
-                variant.setPrice(new BigDecimal(variantMap.get("price").toString()));
-            }
-            
-            if (variantMap.containsKey("color")) {
-                Color color = findOrCreateColor(variantMap.get("color").toString());
-                variant.setColor(color);
-            }
-            
-            if (variantMap.containsKey("size")) {
-                Size size = findOrCreateSize(variantMap.get("size").toString());
-                variant.setSize(size);
-            }
-            
-            variants.add(productVariantRepository.save(variant));
-        }
-    }
-    
-    return variants;
-}
-
 private Color findOrCreateColor(String colorName) {
     if (colorName == null || colorName.trim().isEmpty()) {
         throw new RuntimeException("Color name cannot be empty");
@@ -212,149 +193,62 @@ private Size findOrCreateSize(String sizeName) {
         return productRepository.findAll();
     }
 
-public ProductDTO updateProduct(Integer id, ProductUpdateRequest request) {
-        System.out.println("=== НАЧАЛО ОБНОВЛЕНИЯ В СЕРВИСЕ ===");
-        
-        // 1. Находим существующий продукт
-        Product existingProduct = productRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Продукт с ID " + id + " не найден"));
-        
-        System.out.println("Найден продукт: " + existingProduct.getName());
-        
-        // 2. Обновляем основные поля
-        updateBasicFields(existingProduct, request);
-        
-        // 3. Обновляем категорию
-        updateCategory(existingProduct, request);
-        
-        // 4. Сохраняем основные изменения
-        Product savedProduct = productRepository.save(existingProduct);
-        System.out.println("Основные поля сохранены");
-        
-        // 5. Обновляем варианты (если переданы)
-        if (request.getVariants() != null) {
-            updateVariants(savedProduct, request.getVariants());
-        }
-        
-        // 6. Перезагружаем продукт с обновленными данными
-        Product finalProduct = productRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Ошибка перезагрузки продукта"));
-        
-        System.out.println("=== ОБНОВЛЕНИЕ ЗАВЕРШЕНО ===");
-        return ProductDTO.fromEntity(finalProduct);
+public ProductDTO updateProduct(Integer id, ProductDTO productDTO) {
+    // Find existing product
+    Product existingProduct = productRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+
+    System.out.println("Existing product found: " + existingProduct.getName());
+    System.out.println("Updating with data: " + productDTO);
+
+    // Update basic fields if they're not null
+    if (productDTO.getName() != null) {
+        existingProduct.setName(productDTO.getName());
     }
-    
-    private void updateBasicFields(Product product, ProductUpdateRequest request) {
-        if (request.getName() != null && !request.getName().trim().isEmpty()) {
-            product.setName(request.getName().trim());
-        }
-        
-        if (request.getDescription() != null) {
-            product.setDescription(request.getDescription().trim());
-        }
-        
-        if (request.getPrice() != null && request.getPrice().compareTo(BigDecimal.ZERO) > 0) {
-            product.setPrice(request.getPrice());
-        }
-        
-        if (request.getCollection() != null) {
-            product.setCollection(request.getCollection().trim());
-        }
-        
-        if (request.getGender() != null && !request.getGender().trim().isEmpty()) {
-            try {
-                product.setGender(Gender.valueOf(request.getGender().toUpperCase()));
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Неверное значение пола: " + request.getGender());
-            }
-        }
-        
-        if (request.getProductStatus() != null && !request.getProductStatus().trim().isEmpty()) {
-            try {
-                product.setProductStatus(ProductStatus.valueOf(request.getProductStatus().toUpperCase()));
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Неверный статус продукта: " + request.getProductStatus());
-            }
-        }
+    if (productDTO.getDescription() != null) {
+        existingProduct.setDescription(productDTO.getDescription());
     }
-    
-    private void updateCategory(Product product, ProductUpdateRequest request) {
-        if (request.getCategoryId() != null && request.getCategoryId() > 0) {
-            Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Категория с ID " + request.getCategoryId() + " не найдена"));
-            product.setCategory(category);
-            System.out.println("Категория обновлена: " + category.getName());
-        }
+    if (productDTO.getPrice() != null) {
+        existingProduct.setPrice(productDTO.getPrice());
     }
-    
-    private void updateVariants(Product product, List<ProductVariantUpdateRequest> variantRequests) {
-        System.out.println("Обновляем варианты, количество: " + variantRequests.size());
-        
-        // Получаем существующие варианты
-        List<ProductVariant> existingVariants = productVariantRepository.findByProductId(product.getId());
-        
-        // Собираем ID вариантов, которые нужно оставить
-        Set<Integer> keepVariantIds = variantRequests.stream()
-            .filter(req -> req.getId() != null && req.getId() > 0)
-            .map(ProductVariantUpdateRequest::getId)
-            .collect(Collectors.toSet());
-        
-        // Удаляем варианты, которых нет в запросе
-        existingVariants.stream()
-            .filter(variant -> !keepVariantIds.contains(variant.getId()))
-            .forEach(variant -> {
-                System.out.println("Удаляем вариант ID: " + variant.getId());
-                productVariantRepository.delete(variant);
-            });
-        
-        // Обновляем или создаем варианты
-        for (ProductVariantUpdateRequest variantRequest : variantRequests) {
-            updateOrCreateVariant(product, variantRequest);
-        }
-        
-        System.out.println("Варианты обновлены");
+    if (productDTO.getCollection() != null) {
+        existingProduct.setCollection(productDTO.getCollection());
     }
-    
-    private void updateOrCreateVariant(Product product, ProductVariantUpdateRequest request) {
-        ProductVariant variant;
-        
-        if (request.getId() != null && request.getId() > 0) {
-            // Обновляем существующий вариант
-            variant = productVariantRepository.findById(request.getId())
-                .orElseThrow(() -> new RuntimeException("Вариант с ID " + request.getId() + " не найден"));
-            System.out.println("Обновляем существующий вариант ID: " + variant.getId());
-        } else {
-            // Создаем новый вариант
-            variant = new ProductVariant();
-            variant.setProduct(product);
-            System.out.println("Создаем новый вариант");
-        }
-        
-        // Обновляем цвет
-        if (request.getColorId() != null && request.getColorId() > 0) {
-            Color color = colorRepository.findById(request.getColorId())
-                .orElseThrow(() -> new RuntimeException("Цвет с ID " + request.getColorId() + " не найден"));
-            variant.setColor(color);
-        }
-        
-        // Обновляем размер
-        if (request.getSizeId() != null && request.getSizeId() > 0) {
-            Size size = sizeRepository.findById(request.getSizeId())
-                .orElseThrow(() -> new RuntimeException("Размер с ID " + request.getSizeId() + " не найден"));
-            variant.setSize(size);
-        }
-        
-        // Обновляем остальные поля
-        if (request.getStock() != null) {
-            variant.setStock(request.getStock());
-        }
-        if (request.getPrice() != null) {
-            variant.setPrice(request.getPrice());
-        }
-        
-        productVariantRepository.save(variant);
-        System.out.println("Вариант сохранен");
+    if (productDTO.getProductStatus() != null) {
+        existingProduct.setProductStatus(productDTO.getProductStatus());
     }
+    if (productDTO.getGender() != null) {
+        existingProduct.setGender(productDTO.getGender());
+    }
+
+    // Update category if provided
+    if (productDTO.getCategory() != null && productDTO.getCategory().getId() != null) {
+        Category category = categoryRepository.findById(productDTO.getCategory().getId())
+            .orElseThrow(() -> new RuntimeException("Category not found: " + productDTO.getCategory().getId()));
+        existingProduct.setCategory(category);
+    }
+
+    // Update variants if provided
+    if (productDTO.getVariants() != null && !productDTO.getVariants().isEmpty()) {
+        // Remove old variants
+        productVariantRepository.deleteByProductId(id);
+        
+        // Create new variants
+        List<ProductVariant> updatedVariants = productDTO.getVariants().stream()
+            .map(variantDTO -> {
+                ProductVariant variant = variantDTO.toEntity(colorRepository, sizeRepository);
+                variant.setProduct(existingProduct);
+                return productVariantRepository.save(variant);
+            })
+            .collect(Collectors.toList());
+        
+        existingProduct.setVariants(updatedVariants);
+    }
+
+    // Save and return updated product
+    Product savedProduct = productRepository.save(existingProduct);
+    return ProductDTO.fromEntity(savedProduct);
+}
 
     public void deleteProduct(int id) {
         productRepository.deleteById(id);

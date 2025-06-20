@@ -5,7 +5,7 @@
       <h2>Управление продуктами</h2>
       <button 
         class="create-btn" 
-        @click="openCreateModal"
+        @click="createProduct"
         :disabled="loading"
         title="Создать новый продукт"
       >
@@ -88,7 +88,7 @@
       <p>Продукты не найдены</p>
       <button 
         class="create-btn secondary" 
-        @click="openCreateModal"
+        @click="createProduct"
         :disabled="loading"
       >
         <svg class="create-icon" viewBox="0 0 24 24">
@@ -98,7 +98,7 @@
       </button>
     </div>
 
-    <!-- Модальное окно создания -->
+    <!-- Модальное окно создания продукта -->
     <div v-if="showCreateModal" class="modal-overlay" @click="closeCreateModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -110,9 +110,9 @@
           </button>
         </div>
         
-        <form @submit.prevent="createProduct" class="edit-form">
+        <form @submit.prevent="saveNewProduct" class="edit-form">
           <div class="form-group">
-            <label for="new-name">Название <span class="required">*</span>:</label>
+            <label for="new-name">Название: <span class="required">*</span></label>
             <input 
               id="new-name"
               v-model="newProduct.name" 
@@ -124,7 +124,7 @@
           </div>
           
           <div class="form-group">
-            <label for="new-description">Описание <span class="required">*</span>:</label>
+            <label for="new-description">Описание: <span class="required">*</span></label>
             <textarea 
               id="new-description"
               v-model="newProduct.description" 
@@ -137,7 +137,7 @@
           
           <div class="form-row">
             <div class="form-group">
-              <label for="new-price">Цена <span class="required">*</span>:</label>
+              <label for="new-price">Цена: <span class="required">*</span></label>
               <input 
                 id="new-price"
                 v-model="newProduct.price" 
@@ -157,36 +157,46 @@
                 v-model="newProduct.collection" 
                 type="text" 
                 class="form-input"
-                placeholder="Введите название коллекции"
+                placeholder="Название коллекции"
               >
             </div>
           </div>
           
           <div class="form-row">
             <div class="form-group">
-              <label for="new-category">Категория <span class="required">*</span>:</label>
-              <select id="new-category" v-model="newProduct.categoryId" class="form-select" required>
+              <label for="new-category">Категория: <span class="required">*</span></label>
+              <select 
+                id="new-category" 
+                v-model="newProduct.categoryId" 
+                class="form-select"
+                required
+              >
                 <option value="">Выберите категорию</option>
-                <option v-for="category in categories" :key="category.id" :value="category.id">
+                <option 
+                  v-for="category in categories" 
+                  :key="category.id" 
+                  :value="category.id"
+                >
                   {{ category.name }}
                 </option>
               </select>
             </div>
             
             <div class="form-group">
-              <label for="new-status">Статус <span class="required">*</span>:</label>
-              <select id="new-status" v-model="newProduct.productStatus" class="form-select" required>
-                <option value="IN_STOCK">В наличии</option>
-                <option value="OUT_OF_STOCK">Нет в наличии</option>
+              <label for="new-gender">Пол: <span class="required">*</span></label>
+              <select id="new-gender" v-model="newProduct.gender" class="form-select" required>
+                <option value="MALE">Мужской</option>
+                <option value="FEMALE">Женский</option>
+                <option value="UNISEX">Унисекс</option>
               </select>
             </div>
           </div>
           
           <div class="form-group">
-            <label for="new-gender">Пол <span class="required">*</span>:</label>
-            <select id="new-gender" v-model="newProduct.gender" class="form-select" required>
-              <option value="MALE">Мужской</option>
-              <option value="FEMALE">Женский</option>
+            <label for="new-status">Статус:</label>
+            <select id="new-status" v-model="newProduct.productStatus" class="form-select">
+              <option value="IN_STOCK">Активный</option>
+              <option value="OUT_OF_STOCK">Неактивный</option>
             </select>
           </div>
           
@@ -275,6 +285,7 @@
               <select id="gender" v-model="editingProduct.gender" class="form-select">
                 <option value="MALE">Мужской</option>
                 <option value="FEMALE">Женский</option>
+                <option value="UNISEX">Унисекс</option>
               </select>
             </div>
           </div>
@@ -299,25 +310,15 @@ import { ref, onMounted } from 'vue'
 import api from '@/api/api'
 
 const products = ref([])
-const categories = ref([])
 const loading = ref(false)
-const creating = ref(false)
-const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const updating = ref(false)
 
-// Объект для создания нового продукта
-const newProduct = ref({
-  name: '',
-  description: '',
-  price: null,
-  collection: '',
-  categoryId: '',
-  productStatus: 'IN_STOCK',
-  gender: 'MALE'
-})
+// Добавляем новые переменные для создания продукта
+const showCreateModal = ref(false)
+const creating = ref(false)
+const categories = ref([])
 
-// Объект для редактирования продукта
 const editingProduct = ref({
   id: null,
   name: '',
@@ -327,6 +328,17 @@ const editingProduct = ref({
   category: null,
   productStatus: 'IN_STOCK',
   variants: [],
+  gender: 'MALE'
+})
+
+// Новый объект для создания продукта
+const newProduct = ref({
+  name: '',
+  description: '',
+  price: null,
+  collection: '',
+  categoryId: null,
+  productStatus: 'IN_STOCK',
   gender: 'MALE'
 })
 
@@ -348,27 +360,75 @@ const getStatusText = (status) => {
 
 const getGenderText = (gender) => {
   switch (gender) {
-    case 'MALE': return 'Мужской'
+    case 'MALE': return 'Мужский'
     case 'FEMALE': return 'Женский'
+    case 'UNISEX': return 'Унисекс'
     default: return gender || '—'
   }
 }
 
-// Функции для модального окна создания
-const openCreateModal = () => {
-  // Сбрасываем форму
-  newProduct.value = {
-    name: '',
-    description: '',
-    price: null,
-    collection: '',
-    categoryId: '',
-    productStatus: 'IN_STOCK',
-    gender: 'MALE'
+// Загрузка категорий
+const fetchCategories = async () => {
+  try {
+    console.log('Загружаем категории...')
+    const response = await api.get('/api/dev/category/all')
+    
+    if (response && response.data && Array.isArray(response.data)) {
+      categories.value = response.data
+      console.log('Категории загружены:', categories.value.length)
+    } else {
+      console.warn('Категории не найдены, используем статичные данные')
+      categories.value = [
+        { id: 1, name: 'Джинсы' },
+        { id: 2, name: 'Брюки' },
+        { id: 3, name: 'Толстовки' },
+        { id: 4, name: 'Куртки' },
+        { id: 5, name: 'Футболки' },
+        { id: 6, name: 'Поло' },
+        { id: 7, name: 'Шорты' },
+        { id: 8, name: 'Обувь' },
+        { id: 9, name: 'Рубашки' },
+        { id: 10, name: 'Спортивный костюм' },
+        { id: 11, name: 'Аксессуары' },
+        { id: 12, name: 'Сумки' },
+        { id: 13, name: 'Платья' },
+        { id: 14, name: 'Пальто' },
+        { id: 15, name: 'Свитеры и кардиганы' },
+        { id: 16, name: 'Юбки' },
+        { id: 17, name: 'Бижутерия' }
+      ]
+    }
+  } catch (error) {
+    console.error('Ошибка при загрузке категорий:', error)
+    categories.value = [
+      { id: 1, name: 'Джинсы' },
+      { id: 2, name: 'Брюки' },
+      { id: 3, name: 'Толстовки' },
+      { id: 4, name: 'Куртки' },
+      { id: 5, name: 'Футболки' },
+      { id: 6, name: 'Поло' },
+      { id: 7, name: 'Шорты' },
+      { id: 8, name: 'Обувь' },
+      { id: 9, name: 'Рубашки' },
+      { id: 10, name: 'Спортивный костюм' },
+      { id: 11, name: 'Аксессуары' },
+      { id: 12, name: 'Сумки' },
+      { id: 13, name: 'Платья' },
+      { id: 14, name: 'Пальто' },
+      { id: 15, name: 'Свитеры и кардиганы' },
+      { id: 16, name: 'Юбки' },
+      { id: 17, name: 'Бижутерия' }
+    ]
   }
+}
+
+// Обновленная функция создания продукта
+const createProduct = () => {
+  console.log('Открываем модальное окно создания продукта')
   showCreateModal.value = true
 }
 
+// Функция закрытия модального окна создания
 const closeCreateModal = () => {
   showCreateModal.value = false
   newProduct.value = {
@@ -376,92 +436,136 @@ const closeCreateModal = () => {
     description: '',
     price: null,
     collection: '',
-    categoryId: '',
+    categoryId: null,
     productStatus: 'IN_STOCK',
     gender: 'MALE'
   }
 }
 
-// Основная функция создания продукта
-const createProduct = async () => {
-  // Валидация обязательных полей
-  if (!newProduct.value.name.trim()) {
-    alert('Название продукта обязательно для заполнения')
-    return
+// Функция создания нового продукта
+const saveNewProduct = async () => {
+  // Валидация на фронтенде
+  const errors = [];
+  
+  if (!newProduct.value.name?.trim()) {
+    errors.push('Название продукта обязательно');
   }
   
-  if (!newProduct.value.description.trim()) {
-    alert('Описание продукта обязательно для заполнения')
-    return
+  if (!newProduct.value.description?.trim()) {
+    errors.push('Описание продукта обязательно');
   }
   
-  if (!newProduct.value.price || newProduct.value.price <= 0) {
-    alert('Цена продукта должна быть больше 0')
-    return
+  if (!newProduct.value.price || parseFloat(newProduct.value.price) <= 0) {
+    errors.push('Цена должна быть больше нуля');
   }
   
   if (!newProduct.value.categoryId) {
-    alert('Выберите категорию продукта')
-    return
+    errors.push('Выберите категорию продукта');
+  }
+  
+  if (errors.length > 0) {
+    alert('Ошибки валидации:\n' + errors.join('\n'));
+    return;
   }
 
-  creating.value = true
+  creating.value = true;
   
   try {
-    console.log('Создаем новый продукт...')
+    console.log('Создаем новый продукт...');
     
-    // Подготавливаем данные для отправки согласно вашему API
-    const productData = {
+    // Правильная структура данных для отправки
+    const productRequest = {
       name: newProduct.value.name.trim(),
       description: newProduct.value.description.trim(),
       price: parseFloat(newProduct.value.price),
-      collection: newProduct.value.collection.trim() || null,
-      category: {
-        id: parseInt(newProduct.value.categoryId)
-      },
-      productStatus: newProduct.value.productStatus,
-      gender: newProduct.value.gender,
-      variants: [] // Пустой массив вариантов для начала
+      collection: newProduct.value.collection?.trim() || null,
+      categoryId: parseInt(newProduct.value.categoryId),
+      productStatus: newProduct.value.productStatus, // Убедимся что это строка
+      gender: newProduct.value.gender
+    };
+    
+    console.log('Отправляем данные:', productRequest);
+    console.log('Типы данных:');
+    console.log('name type:', typeof productRequest.name, 'value:', productRequest.name);
+    console.log('description type:', typeof productRequest.description, 'value:', productRequest.description);
+    console.log('price type:', typeof productRequest.price, 'value:', productRequest.price);
+    console.log('categoryId type:', typeof productRequest.categoryId, 'value:', productRequest.categoryId);
+    console.log('productStatus type:', typeof productRequest.productStatus, 'value:', productRequest.productStatus);
+    console.log('gender type:', typeof productRequest.gender, 'value:', productRequest.gender);
+    
+    // Попробуем сначала тестовый эндпоинт
+    let response;
+    try {
+      response = await api.post('/api/dev/product/create-test', productRequest);
+    } catch (testError) {
+      console.log('Тестовый эндпоинт не работает, пробуем основной:', testError.message);
+      response = await api.post('/api/dev/product/create', productRequest);
     }
     
-    console.log('Отправляем данные:', productData)
+    console.log('Ответ сервера при создании:', response);
     
-    // Отправляем POST запрос на создание
-    const response = await api.post('/api/dev/product/create', productData)
-    
-    console.log('Ответ сервера при создании:', response)
-    
-    // Добавляем новый продукт в локальный массив
     if (response.data) {
-      products.value.push(response.data)
+      // Добавляем новый продукт в начало списка
+      products.value.unshift(response.data);
+      alert(`Продукт "${newProduct.value.name}" успешно создан`);
+      closeCreateModal();
+    } else {
+      throw new Error('Пустой ответ от сервера');
     }
-    
-    alert(`Продукт "${newProduct.value.name}" успешно создан`)
-    closeCreateModal()
-    
-    // Перезагружаем список продуктов для синхронизации
-    await fetchProducts()
     
   } catch (error) {
-    console.error('Ошибка при создании продукта:', error)
+    console.error('Ошибка при создании продукта:', error);
+    console.error('Error response:', error.response);
     
-    let errorMessage = 'Неизвестная ошибка'
+    let errorMessage = 'Неизвестная ошибка';
+    
     if (error.response?.data?.error) {
-      errorMessage = error.response.data.error
+      errorMessage = error.response.data.error;
     } else if (error.response?.data?.message) {
-      errorMessage = error.response.data.message
+      errorMessage = error.response.data.message;
+    } else if (error.response?.data && typeof error.response.data === 'string') {
+      errorMessage = error.response.data;
+    } else if (error.response?.status === 400) {
+      errorMessage = 'Неверные данные запроса. Проверьте консоль для деталей.';
+    } else if (error.response?.status === 500) {
+      errorMessage = 'Внутренняя ошибка сервера. Проверьте логи сервера.';
     } else if (error.message) {
-      errorMessage = error.message
+      errorMessage = error.message;
     }
     
-    alert('Ошибка при создании продукта: ' + errorMessage)
+    alert('Ошибка при создании продукта: ' + errorMessage);
   } finally {
-    creating.value = false
+    creating.value = false;
   }
 }
 
+const validateProductData = (product) => {
+  const errors = [];
+  
+  if (!product.name?.trim()) {
+    errors.push('Название продукта обязательно');
+  }
+  
+  if (!product.description?.trim()) {
+    errors.push('Описание продукта обязательно');
+  }
+  
+  if (!product.price || parseFloat(product.price) <= 0) {
+    errors.push('Цена должна быть больше нуля');
+  }
+  
+  if (!product.categoryId) {
+    errors.push('Выберите категорию продукта');
+  }
+  
+  if (!product.gender) {
+    errors.push('Выберите пол');
+  }
+  
+  return errors;
+};
+
 const editProduct = (product) => {
-  // Копируем данные продукта для редактирования
   editingProduct.value = {
     id: product.id,
     name: product.name || '',
@@ -503,7 +607,6 @@ const updateProduct = async () => {
   try {
     console.log(`Обновляем продукт с ID: ${editingProduct.value.id}`)
     
-    // Подготавливаем данные для отправки
     const productDTO = {
       id: editingProduct.value.id,
       name: editingProduct.value.name.trim(),
@@ -518,19 +621,15 @@ const updateProduct = async () => {
     
     console.log('Отправляем данные:', productDTO)
     
-    // Отправляем PUT запрос
     const response = await api.put(`/api/dev/product/update/${editingProduct.value.id}`, productDTO)
     
     console.log('Ответ сервера:', response)
     
-    // Обновляем продукт в локальном массиве
     const index = products.value.findIndex(p => p.id === editingProduct.value.id)
     if (index !== -1) {
-      // Если сервер возвращает обновленный продукт, используем его
       if (response.data) {
         products.value[index] = response.data
       } else {
-        // Иначе обновляем локально
         products.value[index] = { ...products.value[index], ...productDTO }
       }
     }
@@ -555,7 +654,6 @@ const updateProduct = async () => {
 }
 
 const deleteProduct = async (productId, productName) => {
-  // Подтверждение удаления
   const confirmed = confirm(`Вы уверены, что хотите удалить продукт "${productName}"?`)
   
   if (!confirmed) {
@@ -565,10 +663,8 @@ const deleteProduct = async (productId, productName) => {
   try {
     console.log(`Удаляем продукт с ID: ${productId}`)
     
-    // Отправляем DELETE запрос
     await api.delete(`/api/dev/product/${productId}`)
     
-    // Удаляем продукт из локального массива
     products.value = products.value.filter(product => product.id !== productId)
     
     console.log(`Продукт "${productName}" успешно удален`)
@@ -580,28 +676,6 @@ const deleteProduct = async (productId, productName) => {
   }
 }
 
-// Загрузка категорий для селекта
-const fetchCategories = async () => {
-  try {
-    console.log('Загружаем категории...')
-    const response = await api.get('/api/dev/category/all') // Предполагаем такой endpoint
-    
-    if (response && response.data) {
-      if (Array.isArray(response.data)) {
-        categories.value = response.data
-      } else if (response.data.data && Array.isArray(response.data.data)) {
-        categories.value = response.data.data
-      }
-    }
-    
-    console.log('Категории загружены:', categories.value.length)
-  } catch (error) {
-    console.error('Ошибка при загрузке категорий:', error)
-    // Не показываем alert для категорий, так как продукт может работать и без них
-    categories.value = []
-  }
-}
-
 const fetchProducts = async () => {
   loading.value = true
   try {
@@ -609,15 +683,12 @@ const fetchProducts = async () => {
     const response = await api.get('/api/dev/product/all')
     console.log('Полный ответ API:', response)
    
-    // Инициализируем пустым массивом по умолчанию
     products.value = []
    
-    // Проверяем структуру ответа
     if (response && response.data) {
       let data = response.data
       console.log('response.data:', data, 'тип:', typeof data)
      
-      // Если данные в другом поле (например, response.data.products)
       if (!Array.isArray(data) && typeof data === 'object') {
         if (data.products && Array.isArray(data.products)) {
           data = data.products
@@ -626,9 +697,7 @@ const fetchProducts = async () => {
         }
       }
      
-      // Убеждаемся, что это массив
       if (Array.isArray(data)) {
-        // Проверяем каждый элемент массива
         const validProducts = data.filter(item =>
           item && typeof item === 'object' && item.id
         )
@@ -657,9 +726,9 @@ const fetchProducts = async () => {
   }
 }
 
-onMounted(async () => {
-  await fetchCategories() // Сначала загружаем категории
-  await fetchProducts()   // Затем продукты
+onMounted(() => {
+  fetchProducts()
+  fetchCategories()
 })
 </script>
 
@@ -1153,4 +1222,70 @@ onMounted(async () => {
     margin: 10px;
     max-height: calc(100vh - 20px);
   }
-}</style>
+}
+
+/* Добавьте эти стили к вашему существующему CSS */
+
+.required {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #bdc3c7;
+  opacity: 1;
+}
+
+.save-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.save-btn:disabled:hover {
+  background-color: #95a5a6;
+  transform: none;
+}
+
+.modal-content {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-content {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+}
+</style>

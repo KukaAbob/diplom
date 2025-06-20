@@ -32,21 +32,47 @@ public class UserProfileController {
 
     private final UserService userService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUser(@PathVariable int id) {
-        User user = userService.findById(id); // Получение сущности пользователя
-        List<OrderDTO> orderDTOs = user.getOrders().stream()
-            .map(order -> new OrderDTO(order.getId(), order.getAddress().getId(), order.getPayment().getId(), order.getDate(), order.getStatus(), order.getTotal(), order.isExecuted(), null))
-            .collect(Collectors.toList());
-        List<AddressDto> addressDtos = user.getAddress().stream()
-            .map(address -> new AddressDto(address.getId(), address.getCity(), address.getCountry(), address.getZipCode(), address.getStreet(), address.getUser().getId()))
-            .collect(Collectors.toList());
-        List<PaymentDto> paymenDtos = user.getPayment().stream()
-            .map(payment -> new PaymentDto(payment.getId(), payment.getCardNumber(), payment.getExpiryDate(), payment.getCvvCode()))
-            .collect(Collectors.toList());
-        UserDTO userDTO = new UserDTO(user.getId(), user.getUsername(), user.getEmail(), user.getPhone(), addressDtos, UserRole.USER, orderDTOs, paymenDtos);
-        return ResponseEntity.ok(userDTO);
-    }
+@GetMapping("/{id}")
+public ResponseEntity<UserDTO> getUser(@PathVariable int id) {
+    User user = userService.findById(id);
+    
+    List<OrderDTO> orderDTOs = user.getOrders().stream()
+        .map(OrderDTO::fromEntitySimple)  // Use the simple version to avoid circular refs
+        .collect(Collectors.toList());
+    
+    List<AddressDto> addressDtos = user.getAddress().stream()
+        .map(address -> new AddressDto(
+            address.getId(), 
+            address.getCity(), 
+            address.getCountry(), 
+            address.getZipCode(), 
+            address.getStreet(), 
+            address.getUser().getId()
+        ))
+        .collect(Collectors.toList());
+    
+    List<PaymentDto> paymentDtos = user.getPayment().stream()
+        .map(payment -> new PaymentDto(
+            payment.getId(), 
+            payment.getCardNumber(), 
+            payment.getExpiryDate(), 
+            payment.getCvvCode()
+        ))
+        .collect(Collectors.toList());
+    
+    UserDTO userDTO = new UserDTO(
+        user.getId(), 
+        user.getUsername(), 
+        user.getEmail(), 
+        user.getPhone(), 
+        addressDtos, 
+        UserRole.USER, 
+        orderDTOs, 
+        paymentDtos
+    );
+    
+    return ResponseEntity.ok(userDTO);
+}
 
     @PutMapping("/update")
     public ResponseEntity<?> updateProfile(@RequestBody UpdateUserRequest profileDTO, Principal principal) {

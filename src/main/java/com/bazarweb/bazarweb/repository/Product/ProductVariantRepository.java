@@ -10,4 +10,5 @@ import com.bazarweb.bazarweb.model.Product.ProductVariant;
 @Repository
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, Integer> {
     List<ProductVariant> findByProductId(int productId);
+    void deleteByProductId(int productId);
 }

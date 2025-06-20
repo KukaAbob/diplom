@@ -238,4 +238,24 @@ public class OrderService {
         order.setOrderItems(orderItems);
         orderRepository.save(order);
     }
+
+        public List<OrderDTO> getAllOrders() {
+        return orderRepository.findAll().stream()
+            .map(OrderDTO::fromEntity)
+            .collect(Collectors.toList());
+    }
+
+    public OrderDTO getOrderById(Integer orderId) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Order not found"));
+        return OrderDTO.fromEntity(order);
+    }
+
+    public void updateOrderStatus(Integer orderId, OrderStatus newStatus) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Order not found"));
+        
+        order.setStatus(newStatus);
+        orderRepository.save(order);
+    }
 }

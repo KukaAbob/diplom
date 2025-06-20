@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bazarweb.bazarweb.dto.ProductDTO;
+import com.bazarweb.bazarweb.dto.Requests.admin.ProductCreateRequest;
 import com.bazarweb.bazarweb.dto.Requests.admin.ProductUpdateRequest;
 import com.bazarweb.bazarweb.enums.Gender;
 import com.bazarweb.bazarweb.enums.ProductStatus;
@@ -12,7 +13,7 @@ import com.bazarweb.bazarweb.model.Product.Product;
 import com.bazarweb.bazarweb.model.Product.ProductVariant;
 import com.bazarweb.bazarweb.service.Product.ProductService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
@@ -46,103 +48,102 @@ public class ProductManagerController {
         return productDTOs.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(productDTOs);
     }
 
-    // @PostMapping("/create")
-    // public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
-    //     try {
-    //         Product product = productService.productCreate(productDTO);
-    //         ProductDTO createdProductDTO = ProductDTO.fromEntity(product);
-    //         return ResponseEntity.status(HttpStatus.CREATED).body(createdProductDTO);
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    //     }
-    // }
 
 @PostMapping("/create")
-public ResponseEntity<?> createProduct(@RequestBody Product product, HttpServletRequest request) {
-    try {
-        // Детальное логирование
-        System.out.println("=== DETAILED LOGGING ===");
-        System.out.println("Content-Type: " + request.getContentType());
-        System.out.println("Request Method: " + request.getMethod());
-        
-        // Логируем сам объект
-        System.out.println("Received Product object: " + product);
-        System.out.println("Product class: " + product.getClass().getName());
-        
-        // Детально проверяем каждое поле
-        System.out.println("=== FIELD BY FIELD ===");
-        System.out.println("Name: '" + product.getName() + "' (length: " + 
-            (product.getName() != null ? product.getName().length() : "null") + ")");
-        System.out.println("Name equals 'null'? " + "null".equals(product.getName()));
-        System.out.println("Name is null? " + (product.getName() == null));
-        
-        System.out.println("Description: '" + product.getDescription() + "' (length: " + 
-            (product.getDescription() != null ? product.getDescription().length() : "null") + ")");
-        System.out.println("Description equals 'null'? " + "null".equals(product.getDescription()));
-        
-        System.out.println("Price: " + product.getPrice());
-        System.out.println("Collection: '" + product.getCollection() + "'");
-        System.out.println("Category: " + product.getCategory());
-        System.out.println("Gender: " + product.getGender());
-        System.out.println("Status: " + product.getProductStatus());
-        System.out.println("Variants: " + product.getVariants());
-        
-        // Проверяем и очищаем данные от строк "null"
-        if ("null".equals(product.getName())) {
-            System.out.println("Converting string 'null' to actual null for name");
-            product.setName(null);
-        }
-        if ("null".equals(product.getDescription())) {
-            System.out.println("Converting string 'null' to actual null for description");
-            product.setDescription(null);
-        }
-        if ("null".equals(product.getCollection())) {
-            System.out.println("Converting string 'null' to actual null for collection");
-            product.setCollection(null);
-        }
-        
-        System.out.println("=== AFTER CLEANUP ===");
-        System.out.println("Name after cleanup: '" + product.getName() + "'");
-        System.out.println("Description after cleanup: '" + product.getDescription() + "'");
-        
-        Product savedProduct = productService.productCreate(product);
-       
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
-    } catch (RuntimeException e) {
-        System.out.println("RuntimeException caught: " + e.getMessage());
-        e.printStackTrace();
-        return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-    } catch (Exception e) {
-        System.out.println("General exception caught: " + e.getMessage());
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(Map.of("error", "Internal server error: " + e.getMessage()));
-    }
-}
-
-@PutMapping("/update/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable Integer id, 
-                                         @RequestBody ProductUpdateRequest request) {
-        System.out.println("=== ОБНОВЛЕНИЕ ПРОДУКТА ID: " + id + " ===");
-        System.out.println("Данные: " + request.getName());
-        
+    public ResponseEntity<?> createProduct(@RequestBody ProductCreateRequest request) {
         try {
-            ProductDTO updatedProduct = productService.updateProduct(id, request);
-            return ResponseEntity.ok(updatedProduct);
-        } catch (IllegalArgumentException e) {
-            System.err.println("Ошибка валидации: " + e.getMessage());
-            return ResponseEntity.badRequest().body("Ошибка: " + e.getMessage());
-        } catch (RuntimeException e) {
-            System.err.println("Ошибка выполнения: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ошибка: " + e.getMessage());
+            // Логирование для отладки
+            System.out.println("Получен запрос на создание продукта:");
+            System.out.println("Raw request: " + request);
+            System.out.println("Name: '" + request.getName() + "'");
+            System.out.println("Name is null: " + (request.getName() == null));
+            System.out.println("Name is empty: " + (request.getName() != null && request.getName().isEmpty()));
+            System.out.println("Name after trim: '" + (request.getName() != null ? request.getName().trim() : "null") + "'");
+            
+            // Валидация с детальным логированием
+            List<String> errors = new ArrayList<>();
+            
+            if (request.getName() == null) {
+                errors.add("Поле name равно null");
+            } else if (request.getName().trim().isEmpty()) {
+                errors.add("Поле name пустое после trim");
+            }
+            
+            if (request.getDescription() == null) {
+                errors.add("Поле description равно null");
+            } else if (request.getDescription().trim().isEmpty()) {
+                errors.add("Поле description пустое после trim");
+            }
+            
+            if (request.getPrice() == null) {
+                errors.add("Поле price равно null");
+            } else if (request.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+                errors.add("Цена должна быть больше нуля");
+            }
+            
+            if (request.getCategoryId() == null) {
+                errors.add("Поле categoryId равно null");
+            }
+            
+            if (request.getGender() == null) {
+                errors.add("Поле gender равно null");
+            }
+            
+            if (request.getProductStatus() == null) {
+                errors.add("Поле productStatus равно null");
+            }
+            
+            if (!errors.isEmpty()) {
+                System.out.println("Ошибки валидации: " + errors);
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Ошибки валидации: " + String.join(", ", errors)));
+            }
+
+            // Создание продукта
+            Product product = productService.createFromRequest(request);
+            ProductDTO createdProductDTO = ProductDTO.fromEntity(product);
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdProductDTO);
+            
+        } catch (EntityNotFoundException e) {
+            System.out.println("Категория не найдена: " + e.getMessage());
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", "Категория не найдена: " + e.getMessage()));
         } catch (Exception e) {
-            System.err.println("Неожиданная ошибка: " + e.getMessage());
+            System.out.println("Неожиданная ошибка: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Внутренняя ошибка сервера");
+                .body(Map.of("error", "Внутренняя ошибка сервера: " + e.getMessage()));
         }
     }
+
+    
+
+@PutMapping("/update/{id}")
+public ResponseEntity<?> updateProduct(@PathVariable Integer id, @RequestBody ProductDTO productDTO) {
+    try {
+        // Log received data
+        System.out.println("Updating product ID: " + id);
+        System.out.println("Received data: " + productDTO);
+        
+        if (productDTO == null) {
+            return ResponseEntity.badRequest().body("Request body is empty");
+        }
+
+        // Set the ID from path variable
+        productDTO.setId(id);
+        
+        // Update the product
+        ProductDTO updatedProduct = productService.updateProduct(id, productDTO);
+        return ResponseEntity.ok(updatedProduct);
+        
+    } catch (Exception e) {
+        System.err.println("Error updating product: " + e.getMessage());
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error updating product: " + e.getMessage());
+    }
+}
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable int id) {
