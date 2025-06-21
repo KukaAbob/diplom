@@ -876,16 +876,18 @@ const uniqueColors = computed(() => {
   return [...new Set(selectedProduct.value?.variants?.map((v) => v.color) || [])]
 })
 
+// Замените это computed свойство в вашем коде:
 const availableSizes = computed(() => {
   if (!selectedColor.value) {
-    // Если цвет не выбран, показываем все доступные размеры
+    // Если цвет не выбран, показываем все доступные размеры без дубликатов
     return [...new Set(selectedProduct.value?.variants?.map((v) => v.size) || [])]
   }
-  return (
+  // Если цвет выбран, показываем размеры для этого цвета без дубликатов
+  return [...new Set(
     selectedProduct.value?.variants
       ?.filter((v) => v.color === selectedColor.value)
       .map((v) => v.size) || []
-  )
+  )]
 })
 
 const currentVariant = computed(() => {
@@ -901,7 +903,8 @@ const canAddToCart = computed(() => {
 // Методы для работы с деталями товара
 const selectColor = (color) => {
   selectedColor.value = color
-
+  
+  // Сбрасываем размер, если он больше не доступен для выбранного цвета
   if (selectedSize.value && !availableSizes.value.includes(selectedSize.value)) {
     selectedSize.value = null
   }
