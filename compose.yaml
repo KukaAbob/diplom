@@ -6,10 +6,10 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://maglev.proxy.rlwy.net:17352/railway
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=buLYnDObTGrXXodtVLpHCktgmqObMuwp
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      SPRING_DATASOURCE_URL: jdbc:postgresql://maglev.proxy.rlwy.net:17352/railway
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: buLYnDObTGrXXodtVLpHCktgmqObMuwp
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
   frontapp:
     build:
@@ -30,7 +30,6 @@ services:
     depends_on:
       - frontapp
       - app
-      - db
 
 volumes:
   postgres-data:
